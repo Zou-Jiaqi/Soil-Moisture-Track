@@ -1,19 +1,44 @@
+import os
 import earthaccess
 import argparse
+import logging
+import logger_config # noqa: F401  # side-effect import to configure logging
+import property_manager # noqa: F401  # side-effect import to configure logging
 
-auth = earthaccess.login()
+
+class SMAPDownloader:
+
+    def __init__(self):
+        self.auth = earthaccess.login()
+        self.logger = logging.getLogger(__name__)
+        self.short_name = "SPL3SMP_E",
+        self.version = "006"
+        self.path = os.getenv("DATA_PATH")
 
 
+    def download(self, start, end, path=None, bounding_box=None):
+        if not start.endswith("Z"):
+            start += "T00:00:00Z"
+        if not end.endswith("Z"):
+            end += "T23:59:59Z"
+        if bounding_box is None:
+            bounding_box = (-180, -90, 180, 90)
+        if not path:
+            path = self.path
 
+        granules = earthaccess.search_data(
+            short_name = self.short_name,
+            version = self.version,
+            temporal=(start, end),
+            bounding_box=bounding_box
+        )
+        files = earthaccess.download(granules, local_path=path)
 
-def download(path, start, end, bounding_box=None):
-    granules = earthaccess.search_data(
-        short_name="SPL3SMP_E",
-        temporal=("2024-01-01", "2024-01-31"),
-        bounding_box=(-180, -40, 180, 40)
-    )
-    files = 
-    print(f"Found {len(granules)} granules")
+        if len(granules) == len(files):
+            self.logger.info(f"SMAP data download succeeded.")
+        else:
+            self.logger.error(f"SMAP data download failed.")
+            raise Exception("SMAP data download failed.")
 
 
 def parse_args():
@@ -23,27 +48,20 @@ def parse_args():
     )
 
     parser.add_argument("-d", "--directory", required=True, help="Target download directory")
-    parser.add_argument("--start-date", required=True, help="Start date (YYYY-MM-DD)")
-    parser.add_argument("--end-date", required=True, help="End date (YYYY-MM-DD)")
-    parser.add_argument("-b", "--bounding-box", required=True, help="Bounding box: minLon,minLat,maxLon,maxLat")
-
-    parser.add_argument("-f", "--force", action="store_true", help="Force re-download even if files exist")
-    parser.add_argument("-q", "--quiet", action="store_true", help="Suppress verbose output")
-    parser.add_argument("-h", "--help", action="help", help="Show this help message and exit")
+    parser.add_argument("--start-date", required=True, help="Start date")
+    parser.add_argument("--end-date", required=True, help="End date")
 
     return parser.parse_args()
 
 
-def main():
+def main(downloader):
     args = parse_args()
     path = args.directory
     start_date = args.start_date
     end_date = args.end_date
-    bounding_box = args.bounding_box
-    force = args.force
-    quiet = args.quiet
+    downloader.download(start_date, end_date, path)
 
 
-
-if __name__ == "__main__":\
-    main()
+if __name__ == "__main__":
+    downloader = SMAPDownloader()
+    main(downloader)

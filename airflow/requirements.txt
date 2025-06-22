@@ -1,0 +1,2 @@
+podaac-data-subscriber~=1.15.2
+earthaccess~=0.14.0
