@@ -65,8 +65,6 @@ class CYGNSSIngester:
 
             rows, columns = ref.shape
 
-            num = 0
-            qualified = 0
             for i in range(rows):
                 for j in range(columns):
                     reflectivity = ref[i][j]
@@ -81,13 +79,13 @@ class CYGNSSIngester:
 
                     try:
                         record = CYGNSS(location=from_shape(Point(lon, lat), srid=4326),
-                                    date=filedate.date(), reflectivity=reflectivity.item(),
+                                    date=filedate, reflectivity=reflectivity.item(),
                                     incident_angle=angle.item(), antenna_gain=gain.item(),
                                     ddm_peak_delay=brcs_delay.item())
                     except Exception as e:
                         self.logger.exception(f"Failed to create record.")
                         self.logger.exception(e)
-                        continue
+                        raise e
 
                     records.append(record)
 

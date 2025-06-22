@@ -4,7 +4,7 @@ import configparser
 
 def set_env():
     config = configparser.ConfigParser()
-    config.read('../application.properties')
+    config.read('/opt/airflow/application.properties')
 
     DB_USER = config['postgresql']['DB_USER']
     DB_PASSWORD = config['postgresql']['DB_PASSWORD']

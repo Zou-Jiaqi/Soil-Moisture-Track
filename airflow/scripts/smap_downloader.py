@@ -2,8 +2,7 @@ import os
 import earthaccess
 import argparse
 import logging
-import logger_config # noqa: F401  # side-effect import to configure logging
-import property_manager # noqa: F401  # side-effect import to configure logging
+from scripts import logger_config, property_manager # noqa: F401
 
 
 class SMAPDownloader:
@@ -30,12 +29,16 @@ class SMAPDownloader:
             short_name = self.short_name,
             version = self.version,
             temporal=(start, end),
-            bounding_box=bounding_box
+            bounding_box=bounding_box,
+            cloud_hosted=True
         )
         files = earthaccess.download(granules, local_path=path)
 
-        if len(granules) == len(files):
+        if len(granules) == len(files) and len(files) != 0:
             self.logger.info(f"SMAP data download succeeded.")
+        elif len(granules) == 0:
+            self.logger.error(f"No smap data found.")
+            raise Exception("No smap data found.")
         else:
             self.logger.error(f"SMAP data download failed.")
             raise Exception("SMAP data download failed.")

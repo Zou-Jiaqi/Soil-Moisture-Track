@@ -1,9 +1,8 @@
 import argparse
 import logging
 import os
-import logger_config # noqa: F401  # side-effect import to configure logging
-import property_manager # noqa: F401  # side-effect import to configure logging
 import subprocess
+from scripts import logger_config, property_manager # noqa: F401
 
 class CYGNSSDownloader:
 

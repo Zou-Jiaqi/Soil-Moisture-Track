@@ -137,7 +137,7 @@ class SmapIngester:
             for j in range(columns):
                 if counts[i][j] > 0:
                     soil_moisture = result[i][j] / counts[i][j]
-                    record = SMAP(location=from_shape(Point(lon[j], lat[i]), srid=4326), date=filedate.date(), soil_moisture=soil_moisture.item())
+                    record = SMAP(location=from_shape(Point(lon[j], lat[i]), srid=4326), date=filedate, soil_moisture=soil_moisture.item())
                     records.append(record)
 
         with database_config.get_db() as session:
