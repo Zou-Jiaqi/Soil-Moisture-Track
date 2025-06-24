@@ -1,117 +1,97 @@
-from scripts import database_config, logger_config, property_manager # noqa: F401
-import logging
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+
+from scripts import logger_config, file_utils  # noqa: F401
+import pandas as pd
+import numpy as np
+import logging
 import h5py
-import re
 import os
-from scripts.entities.cygnss import CYGNSS
-from geoalchemy2.shape import from_shape
-from shapely.geometry import Point
+
+logger = logging.getLogger(__name__)
+download_path = os.getenv("DOWNLOAD_PATH").rstrip("/")
+parquet_path = os.getenv("PARQUET_PATH").rstrip("/")
+
+
+def ingest(filedate):
+    files = file_utils.get_cygnss_files_raw(filedate)
+    parquet_file_path = f'{parquet_path}/CYGNSS.parquet'
+
+    curr_date_path = Path(f'{parquet_file_path}/date={filedate.strftime("%Y-%m-%d")}')
+
+    if curr_date_path.exists():
+        logger.warning(f"CYGNSS Partition {curr_date_path.name} already exists.")
+        return
+
+    for file in files:
+        filepath = f'{download_path}/{file}'
+
+        # Read CYGNSS records
+        try:
+            with h5py.File(filepath, mode='r') as f:
+                ref_df = f['reflectivity_peak'][()]
+                lat_df = f['sp_lat'][()]
+                lon_df = f['sp_lon'][()]
+                angle_df = f['sp_inc_angle'][()]
+                gain_df = f['gps_ant_gain_db_i'][()]
+                delay_df = f['brcs_ddm_peak_bin_delay_row'][()]
+                brcs_df = f['brcs'][()]
+
+                mask = (
+                        (ref_df < 0.1) &
+                        (ref_df > 0) &
+                        (gain_df > 0) &
+                        (angle_df < 60) &
+                        (delay_df >= 5) &
+                        (delay_df <= 11) &
+                        (lat_df != -9999) &
+                        (lon_df != -9999)
+                )
+
+                df = pd.DataFrame({
+                    "latitude": lat_df[mask].flatten(),
+                    "longitude": lon_df[mask].flatten(),
+                    "date": filedate.strftime("%Y-%m-%d"),
+                    "reflectivity": ref_df[mask].flatten(),
+                    "incident_angle": angle_df[mask].flatten(),
+                    "brcs": list(brcs_df[mask])
+                })
+
+                df["trailing_edge_slope"] = df["brcs"].apply(compute_tes_from_ddm)
+                df.drop(columns=["brcs"], inplace=True)
+
+                df.to_parquet(parquet_file_path,
+                              index=False,
+                              engine="pyarrow",
+                              compression="snappy",
+                              partition_cols=["date"]
+                              )
+
+        except Exception as e:
+            logger.exception(f"Failed to ingest file: {file}")
+            logger.exception(e)
+            if curr_date_path.exists():
+                os.remove(curr_date_path)
+            raise e
+
+    logger.info(f"Finished ingesting CYGNSS files.")
 
 
 
+def compute_tes_from_ddm(ddm):
+    try:
+        delay_waveform = np.sum(ddm, axis=1)
 
-class CYGNSSIngester:
+        m = np.argmax(delay_waveform)
+        if m + 3 >= len(delay_waveform):
+            return np.nan  # not enough points after peak
 
-    def __init__(self):
-        self.logger = logging.getLogger(__name__)
-        self.path = os.getenv("DATA_PATH").rstrip("/")
-        self.db = database_config.get_db()
-
-
-    def list_all_groups(self):
-        files = self.get_files()
-        if len(files) == 0:
-            print("No files found")
-            return
-        file = files[0]
-        filepath = self.path + "/" + file
-        with h5py.File(filepath, mode='r') as f:
-            for key in f.keys():
-                print('key: ', key, '---------------------------------------')
+        tes = (delay_waveform[m + 3] - delay_waveform[m]) / 3.0
+        return tes
+    except Exception:
+        return np.nan
 
 
-    def get_files(self, date=None):
-        data_path = Path(self.path)
-        pattern = 'cyg0[1-8].ddmi.s'
-        if date is not None:
-            pattern += date.strftime('%Y%m%d')
-
-        files = [f.name for f in data_path.iterdir() if re.match(pattern, f.name) and f.is_file()]
-        return files
-
-    def ingest(self, filedate):
-        files = self.get_files(filedate)
-
-        incomplete_files = set(files)
-        records = []
-        for file in files:
-            filepath = self.path + '/' + file
-            # Read CYGNSS records
-            try:
-                with h5py.File(filepath, mode='r') as f:
-                    lats = f['sp_lat'][()]
-                    lons = f['sp_lon'][()]
-                    delay = f['brcs_ddm_peak_bin_delay_row'][()]
-                    incident_angle = f['sp_inc_angle'][()]
-                    antenna_gain = f['gps_ant_gain_db_i'][()]
-                    ref = f['reflectivity_peak'][()]
-
-            except Exception as e:
-                self.logger.exception(f"Failed to read {file}")
-                self.logger.exception(e)
-                continue
-
-            rows, columns = ref.shape
-
-            for i in range(rows):
-                for j in range(columns):
-                    reflectivity = ref[i][j]
-                    gain = antenna_gain[i][j]
-                    angle = incident_angle[i][j]
-                    brcs_delay = delay[i][j]
-                    lat = lats[i][j]
-                    lon = lons[i][j]
-                    if reflectivity == -9999 or gain == -9999 or angle == -9999 or brcs_delay == -99\
-                            or lat == -9999 or lon == -9999:
-                        continue
-
-                    try:
-                        record = CYGNSS(location=from_shape(Point(lon, lat), srid=4326),
-                                    date=filedate, reflectivity=reflectivity.item(),
-                                    incident_angle=angle.item(), antenna_gain=gain.item(),
-                                    ddm_peak_delay=brcs_delay.item())
-                    except Exception as e:
-                        self.logger.exception(f"Failed to create record.")
-                        self.logger.exception(e)
-                        raise e
-
-                    records.append(record)
-
-            # save records into database
-            with database_config.get_db() as session:
-                try:
-                    session.bulk_save_objects(records)
-                    session.commit()  # commit makes it atomic
-                    self.logger.info(f"{file} ingested")
-                except:
-                    session.rollback()  # rollback ensures atomicity
-                    self.logger.exception(f"Failed to ingest {file}")
-                    continue
-
-            # delete ingested files
-            file_to_be_delete = Path(filepath)
-            if Path(file_to_be_delete).exists():
-                file_to_be_delete.unlink()
-                self.logger.info(f"{file} deleted.")
-
-        if len(incomplete_files) != 0:
-            msg = f"Fail to ingest: {incomplete_files}"
-            self.logger.warning(msg)
-            raise Exception(msg)
-
+# test only
 if __name__ == "__main__":
-    ingester = CYGNSSIngester()
-    # ingester.list_all_groups()
-    ingester.ingest(datetime(2025, 6, 3))
+    ingest(datetime(2025, 6, 3))

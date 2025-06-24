@@ -1,4 +1,6 @@
-podaac-data-subscriber~=1.15.2
-earthaccess~=0.14.0
+podaac-data-subscriber
+earthaccess
 h5py
 geoalchemy2
+gcsfs
+google-cloud-storage
