@@ -1,13 +1,13 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
-from scripts import smap_downloader, cygnss_downloader, smap_ingester, cygnss_ingester, file_uploader
+from scripts import smap_downloader, cygnss_downloader, smap_ingester, cygnss_ingester, file_uploader, file_cleaner
 
 default_args = {
     "owner": "airflow",
     "retries": 3,
     "retry_delay": timedelta(minutes=60),
-    "start_date": datetime(2025, 6, 20),
+    "start_date": datetime(2025, 6, 3),
 }
 
 # download and ingest the data of 3 days ago in case data source is not ready
@@ -39,6 +39,7 @@ with DAG("daily_ingest", default_args=default_args, schedule_interval="0 0 * * *
 
     def cleanup_smap(**context):
         filedate = get_target_date(context["execution_date"]).date()
+        file_cleaner.clean_smap(filedate)
 
 
     def download_cygnss(**context):
@@ -63,6 +64,13 @@ with DAG("daily_ingest", default_args=default_args, schedule_interval="0 0 * * *
 
     def cleanup_cygnss(**context):
         filedate = get_target_date(context["execution_date"]).date()
+        file_cleaner.clean_cygnss(filedate)
+
+
+    # call spark cluster to run prediction
+    def predict_soil_moisture(**context):
+        filedate = get_target_date(context["execution_date"]).date()
+
 
 
     smap_download_task = PythonOperator(task_id="download_smap", python_callable=download_smap, provide_context=True)

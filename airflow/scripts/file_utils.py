@@ -31,21 +31,15 @@ def get_cygnss_files_raw(date=None):
     return files
 
 
-def get_smap_files_parquet(date=None):
-    data_path = Path(parquet_path)
-    pattern = 'SMAP_'
-    if date is not None:
-        pattern += date.strftime('%Y-%m-%d')
-    files = [f.name for f in data_path.iterdir() if re.match(pattern, f.name) and f.is_file()]
+def get_smap_files_parquet(date):
+    data_path = Path(f'{parquet_path}/SMAP.parquet/date={date.strftime("%Y-%m-%d")}')
+    files = [f.name for f in data_path.iterdir() if f.is_file()]
     return files
 
 
-def get_cygnss_files_parquet(date=None):
-    data_path = Path(parquet_path)
-    pattern = 'cygnss_'
-    if date is not None:
-        pattern += date.strftime('%Y-%m-%d')
-    files = [f.name for f in data_path.iterdir() if re.match(pattern, f.name) and f.is_file()]
+def get_cygnss_files_parquet(date):
+    data_path = Path(f'{parquet_path}/CYGNSS.parquet/date={date.strftime("%Y-%m-%d")}')
+    files = [f.name for f in data_path.iterdir() if f.is_file()]
     return files
 
 
