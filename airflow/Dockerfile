@@ -21,7 +21,7 @@ COPY ./dags /opt/airflow/dags
 
 COPY ./scripts /opt/airflow/scripts
 
-COPY ./requirements.txt /temp/requirements.txt
+COPY ./requirements.txt /opt/airflow/requirements.txt
 
-RUN pip install -r /temp/requirements.txt && rm /temp/requirements.txt
+RUN pip install --upgrade -r /opt/airflow/requirements.txt
 
