@@ -13,9 +13,16 @@ jobs:
       UPLOAD_PATH_CYGNSS_RAW: "${{vars.GSC_BUCKET_NAME}}${{vars.BUCKET_PATH_RAW_CYGNSS}}"
       UPLOAD_PATH_PARQUET: "${{vars.GSC_BUCKET_NAME}}${{vars.BUCKET_PATH_PARQUET}}"
     steps:
-      - uses: actions/checkout@v4
+      - name: Fetch Repository for Building Image
+        uses: actions/checkout@v4
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker us-west2-docker.pkg.dev --quiet
       - working-directory: ./airflow
-        name: Build the Docker image
+        name: Build Docker image
         run: docker buildx build
           --build-arg GSC_BUCKET_NAME=${GSC_BUCKET_NAME}
           --build-arg UPLOAD_PATH_SMAP_RAW=${UPLOAD_PATH_SMAP_RAW}
