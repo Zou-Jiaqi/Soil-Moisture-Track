@@ -1,3 +1,4 @@
+python-dotenv
 podaac-data-subscriber
 earthaccess
 h5py
