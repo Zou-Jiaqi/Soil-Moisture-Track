@@ -14,14 +14,13 @@ jobs:
       UPLOAD_PATH_PARQUET: "${{vars.GSC_BUCKET_NAME}}${{vars.BUCKET_PATH_PARQUET}}"
     steps:
       - uses: actions/checkout@v4
-      - run: cd ./airflow
-      - run: ls -l
-      - name: Build the Docker image
-        run: docker buildx build 
-            --build-arg GSC_BUCKET_NAME=${GSC_BUCKET_NAME} 
-            --build-arg UPLOAD_PATH_SMAP_RAW=${UPLOAD_PATH_SMAP_RAW} 
-            --build-arg UPLOAD_PATH_CYGNSS_RAW=${UPLOAD_PATH_CYGNSS_RAW} 
-            --build-arg UPLOAD_PATH_PARQUET=${UPLOAD_PATH_PARQUET} 
-            -f ./Dockerfile 
-            -t us-west2-docker.pkg.dev/secure-bonbon-463900-u2/soil-moisture-track:latest 
-            --push  .
+      - working-directory: ./airflow
+        name: Build the Docker image
+        run: docker buildx build
+          --build-arg GSC_BUCKET_NAME=${GSC_BUCKET_NAME}
+          --build-arg UPLOAD_PATH_SMAP_RAW=${UPLOAD_PATH_SMAP_RAW}
+          --build-arg UPLOAD_PATH_CYGNSS_RAW=${UPLOAD_PATH_CYGNSS_RAW}
+          --build-arg UPLOAD_PATH_PARQUET=${UPLOAD_PATH_PARQUET}
+          -f ./Dockerfile
+          -t us-west2-docker.pkg.dev/secure-bonbon-463900-u2/soil-moisture-track:latest
+          --push  .
