@@ -23,5 +23,5 @@ jobs:
               --build-arg UPLOAD_PATH_SMAP_RAW=${UPLOAD_PATH_SMAP_RAW} \
               --build-arg UPLOAD_PATH_CYGNSS_RAW=${UPLOAD_PATH_CYGNSS_RAW} \
               --build-arg UPLOAD_PATH_PARQUET=${UPLOAD_PATH_PARQUET} \
-              --tag SoilMoistureTrack-Airflow:$(date +%s)
+              --tag SoilMoistureTrack-Airflow:$(date +%s) \
               .
