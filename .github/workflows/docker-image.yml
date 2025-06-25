@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build the Docker image
-        run: docker buildx build . \
+        run: docker buildx build ./airflow \
               --file ./airflow/Dockerfile \
               --build-arg GSC_BUCKET_NAME=${GSC_BUCKET_NAME} \
               --build-arg UPLOAD_PATH_SMAP_RAW=${UPLOAD_PATH_SMAP_RAW} \
