@@ -24,7 +24,7 @@ WORKDIR /opt/ingest
 
 COPY ./requirements.txt /opt/ingest/requirements.txt
 
-RUN apt install python3 pip3
+RUN apt-get update && apt-get install -y python3 python3-pip
 
 USER ubuntu
 
