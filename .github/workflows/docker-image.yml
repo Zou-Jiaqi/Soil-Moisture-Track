@@ -15,6 +15,7 @@ jobs:
     steps:
       - name: Fetch Repository for Building Image
         uses: actions/checkout@v4
+
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
