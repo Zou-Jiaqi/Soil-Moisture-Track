@@ -24,8 +24,10 @@ WORKDIR /opt/ingest
 
 COPY ./requirements.txt /opt/ingest/requirements.txt
 
+RUN apt install python3 pip3
+
 USER ubuntu
 
-RUN pip install -r /opt/ingest/requirements.txt
+RUN pip install -r /opt/ingest/requirements.txt --break-system-packages
 
 RUN echo $EARTH_DATA_AUTH >> /home/ubuntu/.netrc
