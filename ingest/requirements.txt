@@ -1,0 +1,3 @@
+podaac-data-subscriber
+earthaccess
+flask

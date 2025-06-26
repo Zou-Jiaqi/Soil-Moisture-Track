@@ -1,10 +1,10 @@
-name: Docker Image CI
+name: Build Docker Image for Ingest Component
 run-name: ${{ github.actor }} is building docker images. 🚀
 on:
   push:
     branches: [ "main" ]
     paths:
-      - airflow
+      - ingest
 jobs:
   build--and-test:
     runs-on: ubuntu-latest
@@ -18,14 +18,14 @@ jobs:
     environment: Airflow
     env:
       GSC_BUCKET_NAME: "${{vars.GSC_BUCKET_NAME}}"
-      UPLOAD_PATH_SMAP_RAW: "${{vars.GSC_BUCKET_NAME}}${{vars.BUCKET_PATH_RAW_SMAP}}"
-      UPLOAD_PATH_CYGNSS_RAW: "${{vars.GSC_BUCKET_NAME}}${{vars.BUCKET_PATH_RAW_CYGNSS}}"
-      UPLOAD_PATH_PARQUET: "${{vars.GSC_BUCKET_NAME}}${{vars.BUCKET_PATH_PARQUET}}"
+      SMAP_RAW_PATH: "${{vars.BUCKET_PATH_RAW_SMAP}}"
+      CYGNSS_RAW_PATH: "${{vars.BUCKET_PATH_RAW_CYGNSS}}"
+      EARTH_DATA_AUTH: "${{ secrets.}}"
     steps:
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+          credentials_json: '${{ secrets.EARTH_DATA_AUTH }}'
 
       - name: Configure Docker for Artifact Registry
         run: gcloud auth configure-docker us-west2-docker.pkg.dev --quiet
@@ -34,9 +34,9 @@ jobs:
         name: Build Docker image
         run: docker buildx build
           --build-arg GSC_BUCKET_NAME=${GSC_BUCKET_NAME}
-          --build-arg UPLOAD_PATH_SMAP_RAW=${UPLOAD_PATH_SMAP_RAW}
-          --build-arg UPLOAD_PATH_CYGNSS_RAW=${UPLOAD_PATH_CYGNSS_RAW}
-          --build-arg UPLOAD_PATH_PARQUET=${UPLOAD_PATH_PARQUET}
+          --build-arg SMAP_RAW_PATH=${SMAP_RAW_PATH}
+          --build-arg CYGNSS_RAW_PATH=${CYGNSS_RAW_PATH}
+          --build-arg EARTH_DATA_AUTH=${EARTH_DATA_AUTH}
           -f ./Dockerfile
-          -t us-west2-docker.pkg.dev/secure-bonbon-463900-u2/soil-moisture-track/smt_airflow:latest
+          -t us-west2-docker.pkg.dev/secure-bonbon-463900-u2/soil-moisture-track/smt_ingest:latest
           --push  .
