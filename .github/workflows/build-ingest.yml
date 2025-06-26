@@ -3,18 +3,9 @@ run-name: ${{ github.actor }} is building docker images. 🚀
 on:
   push:
     branches: [ "main" ]
-    paths:
-      - 'ingest/**'
 jobs:
   build--and-test:
     runs-on: ubuntu-latest
-    steps:
-      - name: Fetch Repository for Building Image
-        uses: actions/checkout@v4
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build--and-test
     environment: Airflow
     env:
       GSC_BUCKET_NAME: "${{vars.GSC_BUCKET_NAME}}"
@@ -30,7 +21,10 @@ jobs:
       - name: Configure Docker for Artifact Registry
         run: gcloud auth configure-docker us-west2-docker.pkg.dev --quiet
 
-      - working-directory: ./airflow
+      - name: Fetch Repository for Building Image
+        uses: actions/checkout@v4
+
+      - working-directory: ./ingest
         name: Build Docker image
         run: docker buildx build
           --build-arg GSC_BUCKET_NAME=${GSC_BUCKET_NAME}
