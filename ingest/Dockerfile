@@ -24,6 +24,6 @@ COPY ./requirements.txt /opt/ingest/requirements.txt
 
 RUN apt-get update && apt-get install -y python3 python3-pip
 
-RUN python3 -m pip install -r /opt/ingest/requirements.txt
+RUN pip install -r /opt/ingest/requirements.txt
 
 RUN echo $EARTH_DATA_AUTH >> /home/ubuntu/.netrc
