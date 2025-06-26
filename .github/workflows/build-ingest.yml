@@ -10,7 +10,6 @@ jobs:
     env:
       BUCKET_PATH_RAW_SMAP: "${{ vars.BUCKET_PATH_RAW_SMAP }}"
       BUCKET_PATH_RAW_CYGNSS: "${{ vars.BUCKET_PATH_RAW_CYGNSS }}"
-      EARTH_DATA_AUTH: "${{ secrets.EARTH_DATA_AUTH }}"
     steps:
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
@@ -26,7 +25,6 @@ jobs:
       - run: echo docker buildx build
           --build-arg SMAP_RAW_PATH=${BUCKET_PATH_RAW_SMAP}
           --build-arg CYGNSS_RAW_PATH=${BUCKET_PATH_RAW_CYGNSS}
-          --build-arg EARTH_DATA_AUTH=${EARTH_DATA_AUTH}
           -f ./Dockerfile
           -t us-west2-docker.pkg.dev/secure-bonbon-463900-u2/soil-moisture-track/smt_ingest:latest
           --push  .

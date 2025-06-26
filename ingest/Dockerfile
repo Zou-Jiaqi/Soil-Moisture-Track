@@ -4,7 +4,6 @@ LABEL authors="Jiaqi Zou"
 
 ARG SMAP_RAW_PATH
 ARG CYGNSS_RAW_PATH
-ARG EARTH_DATA_AUTH
 
 ENV CYGNSS_SHORTNAME_VERSION=1
 ENV SMAP_SHORTNAME=SPL3SMP_E
@@ -29,5 +28,3 @@ RUN apt-get update && apt-get install -y python3 python3-pip
 USER ubuntu
 
 RUN pip install -r /opt/ingest/requirements.txt --break-system-packages
-
-RUN echo $EARTH_DATA_AUTH >> /home/ubuntu/.netrc
