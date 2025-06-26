@@ -24,9 +24,9 @@ WORKDIR /opt/ingest
 
 COPY ./requirements.txt /opt/ingest/requirements.txt
 
-RUN apt-get update && apt-get install -y python3.11 python3-pip
-
 USER ubuntu
+
+RUN apt-get update && apt-get install -y python3.11 python3-pip
 
 RUN pip install -r /opt/ingest/requirements.txt
 
