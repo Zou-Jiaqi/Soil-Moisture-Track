@@ -20,7 +20,7 @@ jobs:
       GSC_BUCKET_NAME: "${{vars.GSC_BUCKET_NAME}}"
       SMAP_RAW_PATH: "${{vars.BUCKET_PATH_RAW_SMAP}}"
       CYGNSS_RAW_PATH: "${{vars.BUCKET_PATH_RAW_CYGNSS}}"
-      EARTH_DATA_AUTH: "${{ secrets.}}"
+      EARTH_DATA_AUTH: "${{ secrets.EARTH_DATA_AUTH}}"
     steps:
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
