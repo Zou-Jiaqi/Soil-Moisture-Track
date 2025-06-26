@@ -18,8 +18,6 @@ ENV CYGNSS_RAW_PATH=$CYGNSS_RAW_PATH
 
 RUN whoami
 
-USER ubuntu
-
 COPY ./flask /opt/ingest
 
 WORKDIR /opt/ingest
@@ -27,6 +25,8 @@ WORKDIR /opt/ingest
 COPY ./requirements.txt /opt/ingest/requirements.txt
 
 RUN apt-get update && apt-get install -y python3 python3-pip
+
+USER ubuntu
 
 RUN pip install -r /opt/ingest/requirements.txt
 
