@@ -18,7 +18,11 @@ def ingest():  # put application's code here
     else:
         abort(400, f'Invalid datatype: {data_type}')
 
+@app.route('/')
+def health():
+    return 'OK', 200
+
+
 if __name__ == '__main__':
-    # testme.test()
     port = int(os.environ.get("PORT", 8080))
     app.run(host='0.0.0.0', port=port)
