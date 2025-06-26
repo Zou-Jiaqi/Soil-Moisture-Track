@@ -22,6 +22,8 @@ WORKDIR /opt/ingest
 
 COPY ./requirements.txt /opt/ingest/requirements.txt
 
+RUN apt install python
+
 RUN pip install -r /opt/ingest/requirements.txt
 
 RUN echo $EARTH_DATA_AUTH >> /home/ubuntu/.netrc

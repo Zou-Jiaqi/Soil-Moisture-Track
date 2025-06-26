@@ -23,7 +23,5 @@ COPY ./scripts /opt/airflow/scripts
 
 COPY ./requirements.txt /opt/airflow/requirements.txt
 
-RUN apt install python
-
 RUN pip install --upgrade -r /opt/airflow/requirements.txt
 
