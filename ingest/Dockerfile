@@ -17,7 +17,7 @@ ENV CYGNSS_RAW_PATH=$CYGNSS_RAW_PATH
 
 RUN whoami
 
-COPY ./flask /opt/ingest
+COPY ./src /opt/ingest
 
 WORKDIR /opt/ingest
 
