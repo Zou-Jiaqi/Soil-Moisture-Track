@@ -1,6 +1,6 @@
 from flask import Flask, request, abort
-# import cygnss_ingest
-# import smap_ingest
+import cygnss_ingest
+import smap_ingest
 import os
 
 app = Flask(__name__)
@@ -10,10 +10,10 @@ def ingest():  # put application's code here
     data_type = request.args.get('datatype').upper()
     datestr = request.args.get('date')
     if data_type == 'SMAP':
-        # smap_ingest.ingest(datestr)
+        smap_ingest.ingest(datestr)
         return 'Start to ingest SMAP data', 200
     elif data_type == 'CYGNSS':
-        # cygnss_ingest.ingest(datestr)
+        cygnss_ingest.ingest(datestr)
         return 'Start to ingest CYGNSS data', 200
     else:
         abort(400, f'Invalid datatype: {data_type}')
@@ -21,6 +21,13 @@ def ingest():  # put application's code here
 @app.route('/')
 def health():
     return 'OK', 200
+
+
+@app.route('/env')
+def showenv():
+    str = f"EARTHDATA_USERNAME: {os.environ['EARTHDATA_USERNAME']}"
+    return str, 200
+
 
 
 if __name__ == '__main__':
