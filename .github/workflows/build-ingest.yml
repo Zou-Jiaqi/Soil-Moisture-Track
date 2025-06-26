@@ -8,10 +8,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: Airflow
     env:
-      GSC_BUCKET_NAME: "${{ vars.GSC_BUCKET_NAME }}"
       BUCKET_PATH_RAW_SMAP: "${{ vars.BUCKET_PATH_RAW_SMAP }}"
       BUCKET_PATH_RAW_CYGNSS: "${{ vars.BUCKET_PATH_RAW_CYGNSS }}"
-      EARTH_DATA_AUTH: "${{ secrets.EARTH_DATA_AUTH}}"
+      EARTH_DATA_AUTH: "${{ secrets.EARTH_DATA_AUTH }}"
     steps:
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
@@ -27,7 +26,6 @@ jobs:
       - working-directory: ./ingest
         name: Build Docker image
         run: docker buildx build
-          --build-arg GSC_BUCKET_NAME=${GSC_BUCKET_NAME}
           --build-arg SMAP_RAW_PATH=${BUCKET_PATH_RAW_SMAP}
           --build-arg CYGNSS_RAW_PATH=${BUCKET_PATH_RAW_CYGNSS}
           --build-arg EARTH_DATA_AUTH=${EARTH_DATA_AUTH}
