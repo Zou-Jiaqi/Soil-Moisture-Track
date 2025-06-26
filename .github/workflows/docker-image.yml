@@ -3,6 +3,8 @@ run-name: ${{ github.actor }} is building docker images. 🚀
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - "airflow/**"
 jobs:
   deploy:
     runs-on: ubuntu-latest
