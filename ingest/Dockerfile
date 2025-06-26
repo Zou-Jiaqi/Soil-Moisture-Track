@@ -28,3 +28,5 @@ RUN apt-get update && apt-get install -y python3 python3-pip
 USER ubuntu
 
 RUN pip install -r /opt/ingest/requirements.txt --break-system-packages
+
+EXPOSE 8080
