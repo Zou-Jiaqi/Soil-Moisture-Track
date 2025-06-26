@@ -30,3 +30,5 @@ USER ubuntu
 RUN pip install -r /opt/ingest/requirements.txt --break-system-packages
 
 EXPOSE 8080
+
+ENTRYPOINT exec python3 /opt/ingest/app.py

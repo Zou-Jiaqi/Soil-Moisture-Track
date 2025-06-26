@@ -2,7 +2,7 @@ import os
 import earthaccess
 import logging
 
-auth = earthaccess.login()
+# auth = earthaccess.login()
 logger = logging.getLogger(__name__)
 
 short_name = os.getenv("SMAP_SHORTNAME")

@@ -1,7 +1,6 @@
 from flask import Flask, request, abort
 import cygnss_ingest
 import smap_ingest
-import testme
 import os
 
 app = Flask(__name__)
@@ -20,6 +19,6 @@ def ingest():  # put application's code here
         abort(400, f'Invalid datatype: {data_type}')
 
 if __name__ == '__main__':
-    testme.test()
+    # testme.test()
     port = int(os.environ.get("PORT", 8080))
     app.run(host='0.0.0.0', port=port)
