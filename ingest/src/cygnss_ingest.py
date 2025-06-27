@@ -1,3 +1,4 @@
+from pathlib import Path
 import logging
 import os
 import subprocess
@@ -18,6 +19,13 @@ def ingest(datestr, bounding_box='"-180,-90,180,90"', force=False, quiet=False):
         start += "T00:00:00Z"
     if not end.endswith("Z"):
         end += "T23:59:59Z"
+
+    netrc = "~/.netrc"
+    if not Path(netrc).exists():
+        with open(netrc, "w") as f:
+            f.write("machine urs.earthdata.nasa.gov\n")
+            f.write(f"\tlogin {os.getenv('EARTHDATA_USERNAME')}\n")
+            f.write(f"\tpassword {os.getenv('EARTHDATA_PASSWORD')}\n")
 
     cmd = (f"podaac-data-downloader -c {shortname} -d {download_path} "
            f"-b={bounding_box} "
