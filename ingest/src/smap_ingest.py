@@ -21,6 +21,8 @@ def ingest(datestr, bounding_box=(-180, -90, 180, 90)):
     if not end.endswith("Z"):
         end += "T23:59:59Z"
 
+    download_target = f'{download_path}/{datestr}/'
+
     granules = earthaccess.search_data(
         short_name=short_name,
         version=version,
@@ -28,7 +30,7 @@ def ingest(datestr, bounding_box=(-180, -90, 180, 90)):
         bounding_box=bounding_box,
         cloud_hosted=True
     )
-    files = earthaccess.download(granules, local_path=download_path)
+    files = earthaccess.download(granules, local_path=download_target)
 
     if len(granules) == len(files) and len(files) != 0:
         msg = f"SMAP data download success. Number of files: {len(files)}"

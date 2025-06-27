@@ -20,14 +20,25 @@ def ingest(datestr, bounding_box='"-180,-90,180,90"', force=False, quiet=False):
     if not end.endswith("Z"):
         end += "T23:59:59Z"
 
+    download_target = f'{download_path}/{datestr}/'
+
+    logger.info(f"before creating netrc")
+
     netrc = "~/.netrc"
     if not Path(netrc).exists():
-        with open(netrc, "w") as f:
-            f.write("machine urs.earthdata.nasa.gov\n")
-            f.write(f"\tlogin {os.getenv('EARTHDATA_USERNAME')}\n")
-            f.write(f"\tpassword {os.getenv('EARTHDATA_PASSWORD')}\n")
+        logger.info(f"creating netrc at {Path(netrc).absolute()}")
+        try:
+            with open(netrc, "w") as f:
+                f.write("machine urs.earthdata.nasa.gov\n")
+                f.write(f"\tlogin {os.getenv('EARTHDATA_USERNAME')}\n")
+                f.write(f"\tpassword {os.getenv('EARTHDATA_PASSWORD')}\n")
+        except Exception as e:
+            logger.error(f"failed to create netrc at {Path(netrc).absolute()}")
+            raise e
 
-    cmd = (f"podaac-data-downloader -c {shortname} -d {download_path} "
+    logger.info(f"after creating netrc")
+
+    cmd = (f"podaac-data-downloader -c {shortname} -d {download_target} "
            f"-b={bounding_box} "
            f"--start-date {start} --end-date {end}")
 
