@@ -1,6 +1,6 @@
 from concurrent.futures import ThreadPoolExecutor
 from google.cloud import pubsub_v1
-from fastavro import schemaless_reader
+from fastavro import schemaless_reader, parse_schema, writer
 import json
 import logging
 import sys
@@ -13,6 +13,7 @@ project_id = os.getenv("PROJECT_ID")
 subscription_id = os.getenv("SUBSCRIPTION_ID")
 schema_id = os.getenv("SCHEMA_ID")
 number_of_retries = int(os.getenv("NUMBER_OF_RETRIES"))
+topic_id = os.getenv("TOPIC_ID")
 
 logging.basicConfig(
     level=logging.INFO,  # or DEBUG
@@ -47,8 +48,34 @@ def pull_date():
     raise Exception(f"No download date received from pub/sub.")
 
 
+def push_date():
+    subscriber = pubsub_v1.SubscriberClient()
+    publisher = pubsub_v1.PublisherClient()
+    topic_path = publisher.topic_path(project_id, topic_id)
+
+    client = pubsub_v1.SchemaServiceClient()
+    schema_path = client.schema_path(project_id, schema_id)
+    schema = client.get_schema(request={"name": schema_path})
+
+    # Parse schema
+    parsed_schema = parse_schema(schema)
+
+    # Create a record
+    record = {"DownloadDate": "2025-06-20"}
+
+    # Serialize using fastavro
+    buffer = io.BytesIO()
+    writer(buffer, parsed_schema, [record])
+    avro_bytes = buffer.getvalue()
+
+    # Publish to Pub/Sub
+    future = publisher.publish(topic_path, data=avro_bytes)
+    print(f"Published message ID: {future.result()}")
+
+
 def ingest_all():
     executor = ThreadPoolExecutor(2)
+    push_date()
     datestr = pull_date()
     smap_exec = executor.submit(smap_ingest.ingest, datestr)
     cygnss_exec = executor.submit(cygnss_ingest.ingest, datestr)
