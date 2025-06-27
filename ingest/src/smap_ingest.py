@@ -2,7 +2,7 @@ import os
 import earthaccess
 import logging
 
-# auth = earthaccess.login()
+auth = earthaccess.login()
 logger = logging.getLogger(__name__)
 
 short_name = os.getenv("SMAP_SHORTNAME")
@@ -13,7 +13,6 @@ raw_smap_path = os.getenv("SMAP_RAW_PATH")
 download_path = f'{bucket_path}{raw_smap_path}'
 
 
-
 def ingest(datestr, bounding_box=(-180, -90, 180, 90)):
     start = datestr
     end = datestr
@@ -21,7 +20,6 @@ def ingest(datestr, bounding_box=(-180, -90, 180, 90)):
         start += "T00:00:00Z"
     if not end.endswith("Z"):
         end += "T23:59:59Z"
-
 
     granules = earthaccess.search_data(
         short_name=short_name,
@@ -33,12 +31,13 @@ def ingest(datestr, bounding_box=(-180, -90, 180, 90)):
     files = earthaccess.download(granules, local_path=download_path)
 
     if len(granules) == len(files) and len(files) != 0:
-        with open(f"{download_path}/success.txt", "w") as f:
-            pass
-        logger.info(f"SMAP data download succeeded.")
+        msg = f"SMAP data download success. Number of files: {len(files)}"
+        logger.info(msg)
     elif len(granules) == 0:
-        logger.error(f"No smap data found.")
-        raise Exception("No smap data found.")
+        msg = f"No smap data found."
+        logger.error(msg)
+        raise Exception(msg)
     else:
-        logger.error(f"SMAP data download failed.")
-        raise Exception("SMAP data download failed.")
+        msg = f"SMAP data download failed. Number of failed files: {len(granules) - len(files)}"
+        logger.error(msg)
+        raise Exception(msg)

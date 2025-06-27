@@ -15,6 +15,8 @@ ENV GCS_BUCKET_PATH=$GCS_BUCKET_PATH
 ENV SMAP_RAW_PATH=$SMAP_RAW_PATH
 ENV CYGNSS_RAW_PATH=$CYGNSS_RAW_PATH
 
+ENV PATH="/home/ubuntu/.local/bin:${PATH}"
+
 COPY ./src /opt/ingest
 
 WORKDIR /opt/ingest

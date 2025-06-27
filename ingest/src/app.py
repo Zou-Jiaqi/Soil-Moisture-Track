@@ -1,20 +1,23 @@
 from flask import Flask, request, abort
+from concurrent.futures import ThreadPoolExecutor
 import cygnss_ingest
 import smap_ingest
 import os
 
 app = Flask(__name__)
 
+executor = ThreadPoolExecutor()
+
 @app.route('/ingest')
 def ingest():  # put application's code here
     data_type = request.args.get('datatype').upper()
     datestr = request.args.get('date')
     if data_type == 'SMAP':
-        smap_ingest.ingest(datestr)
-        return 'Start to ingest SMAP data', 200
+        executor.submit(smap_ingest.ingest, datestr)
+        return 'Start to ingest SMAP data', 202
     elif data_type == 'CYGNSS':
-        cygnss_ingest.ingest(datestr)
-        return 'Start to ingest CYGNSS data', 200
+        executor.submit(cygnss_ingest.ingest, datestr)
+        return 'Start to ingest CYGNSS data', 202
     else:
         abort(400, f'Invalid datatype: {data_type}')
 

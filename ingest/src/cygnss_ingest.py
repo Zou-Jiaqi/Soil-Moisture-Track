@@ -32,10 +32,10 @@ def ingest(datestr, bounding_box='"-180,-90,180,90"', force=False, quiet=False):
     result = subprocess.run(cmd, shell=True)
 
     if result.returncode == 0:
-        with open(f"{download_path}/success.txt", "w") as f:
-            pass
-        logger.info(f"CYGNSS data download succeeded.")
+        msg = f"CYGNSS data download succeeded."
+        logger.info(msg)
     else:
-        logger.error(f"CYGNSS data download failed.")
-        raise Exception("CYGNSS data download failed.")
+        msg = f"CYGNSS data download failed."
+        logger.error(msg)
+        raise Exception(msg)
 
