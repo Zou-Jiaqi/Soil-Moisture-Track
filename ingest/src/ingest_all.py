@@ -15,13 +15,13 @@ schema_id = os.getenv("SCHEMA_ID")
 number_of_retries = int(os.getenv("NUMBER_OF_RETRIES"))
 topic_id = os.getenv("TOPIC_ID")
 
-
 logging.basicConfig(
     level=logging.INFO,  # or DEBUG
     format="%(asctime)s %(levelname)s %(name)s %(message)s",
     stream=sys.stdout,   # Important! Cloud Run reads from stdout
 )
 
+logger = logging.getLogger(__name__)
 
 def push_date():
     publisher = pubsub_v1.PublisherClient()
@@ -33,9 +33,7 @@ def push_date():
     schema_dict = json.loads(schema.definition)
 
     # Create a record
-    record = {'"DownloadDate": { \
-                "string": "2025-06-20" \
-            '}
+    record = {'"DownloadDate": "2025-06-20"'}
 
     # Serialize using fastavro
     buffer = io.BytesIO()
@@ -43,6 +41,7 @@ def push_date():
     avro_bytes = buffer.getvalue()
 
     # Publish to Pub/Sub
+    print(avro_bytes.hex())
     future = publisher.publish(topic_path, data=avro_bytes)
     print(f"Published message ID: {future.result()}")
 
@@ -61,14 +60,19 @@ def pull_date():
             request={"subscription": subscription_path, "max_messages": 1}
         )
         for msg in response.received_messages:
-            data_bytes = msg.message.data
-            bytes_io = io.BytesIO(data_bytes)
-            decoded = schemaless_reader(bytes_io, schema_dict)
+            try:
+                data_bytes = msg.message.data
+                bytes_io = io.BytesIO(data_bytes)
+                decoded = schemaless_reader(bytes_io, schema_dict)
+            except Exception as e:
+                logger.error(e)
+                continue
             if "DownloadDate" in decoded:
                 subscriber.acknowledge(
                     request={"subscription": subscription_path, "ack_ids": [msg.ack_id]}
                 )
                 datestr = decoded["DownloadDate"]
+                print(datestr)
                 return datestr
     raise Exception(f"No download date received from pub/sub.")
 
