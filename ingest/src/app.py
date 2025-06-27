@@ -1,10 +1,18 @@
 from flask import Flask, request, abort
 from concurrent.futures import ThreadPoolExecutor
+import logging
+import sys
 import cygnss_ingest
 import smap_ingest
 import os
 
 app = Flask(__name__)
+
+logging.basicConfig(
+    level=logging.INFO,  # or DEBUG
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+    stream=sys.stdout,   # Important! Cloud Run reads from stdout
+)
 
 executor = ThreadPoolExecutor()
 
