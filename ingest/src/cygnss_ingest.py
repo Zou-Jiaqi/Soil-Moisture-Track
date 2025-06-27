@@ -30,6 +30,7 @@ def ingest(datestr, bounding_box='"-180,-90,180,90"', force=False, quiet=False):
                 f.write("machine urs.earthdata.nasa.gov\n")
                 f.write(f"\tlogin {os.getenv('EARTHDATA_USERNAME')}\n")
                 f.write(f"\tpassword {os.getenv('EARTHDATA_PASSWORD')}\n")
+            os.chmod(netrc_path.absolute(), 0o700)
         except Exception as e:
             logger.error(f"failed to create netrc at {netrc_path.absolute()}")
             raise e
