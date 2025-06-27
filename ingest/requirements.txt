@@ -1,3 +1,4 @@
 podaac-data-subscriber
 earthaccess
+fastavro
 google-cloud-pubsub
