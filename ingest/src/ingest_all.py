@@ -1,6 +1,6 @@
 from concurrent.futures import ThreadPoolExecutor
 from google.cloud import pubsub_v1
-from fastavro import schemaless_reader, parse_schema, writer
+from fastavro import schemaless_reader, schemaless_writer
 import json
 import logging
 import sys
@@ -32,18 +32,14 @@ def push_date():
     schema = client.get_schema(request={"name": schema_path})
     schema_dict = json.loads(schema.definition)
 
-    print(schema.definition)
-    print(schema_dict)
-
-    # Parse schema
-    parsed_schema = parse_schema(schema_dict)
-
     # Create a record
-    record = {"DownloadDate": "2025-06-20"}
+    record = {'"DownloadDate": { \
+                "string": "2025-06-20" \
+            '}
 
     # Serialize using fastavro
     buffer = io.BytesIO()
-    writer(buffer, parsed_schema, [record])
+    schemaless_writer(buffer, schema_dict, record)
     avro_bytes = buffer.getvalue()
 
     # Publish to Pub/Sub
