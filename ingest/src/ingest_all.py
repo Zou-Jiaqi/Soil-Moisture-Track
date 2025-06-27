@@ -15,11 +15,40 @@ schema_id = os.getenv("SCHEMA_ID")
 number_of_retries = int(os.getenv("NUMBER_OF_RETRIES"))
 topic_id = os.getenv("TOPIC_ID")
 
+
 logging.basicConfig(
     level=logging.INFO,  # or DEBUG
     format="%(asctime)s %(levelname)s %(name)s %(message)s",
     stream=sys.stdout,   # Important! Cloud Run reads from stdout
 )
+
+
+def push_date():
+    publisher = pubsub_v1.PublisherClient()
+    topic_path = publisher.topic_path(project_id, topic_id)
+
+    client = pubsub_v1.SchemaServiceClient()
+    schema_path = client.schema_path(project_id, schema_id)
+    schema = client.get_schema(request={"name": schema_path})
+    schema_dict = json.loads(schema.definition)
+
+    print(schema.definition)
+    print(schema_dict)
+
+    # Parse schema
+    parsed_schema = parse_schema(schema_dict)
+
+    # Create a record
+    record = {"DownloadDate": "2025-06-20"}
+
+    # Serialize using fastavro
+    buffer = io.BytesIO()
+    writer(buffer, parsed_schema, [record])
+    avro_bytes = buffer.getvalue()
+
+    # Publish to Pub/Sub
+    future = publisher.publish(topic_path, data=avro_bytes)
+    print(f"Published message ID: {future.result()}")
 
 
 def pull_date():
@@ -46,31 +75,6 @@ def pull_date():
                 datestr = decoded["DownloadDate"]
                 return datestr
     raise Exception(f"No download date received from pub/sub.")
-
-
-def push_date():
-    subscriber = pubsub_v1.SubscriberClient()
-    publisher = pubsub_v1.PublisherClient()
-    topic_path = publisher.topic_path(project_id, topic_id)
-
-    client = pubsub_v1.SchemaServiceClient()
-    schema_path = client.schema_path(project_id, schema_id)
-    schema = client.get_schema(request={"name": schema_path})
-
-    # Parse schema
-    parsed_schema = parse_schema(schema)
-
-    # Create a record
-    record = {"DownloadDate": "2025-06-20"}
-
-    # Serialize using fastavro
-    buffer = io.BytesIO()
-    writer(buffer, parsed_schema, [record])
-    avro_bytes = buffer.getvalue()
-
-    # Publish to Pub/Sub
-    future = publisher.publish(topic_path, data=avro_bytes)
-    print(f"Published message ID: {future.result()}")
 
 
 def ingest_all():
