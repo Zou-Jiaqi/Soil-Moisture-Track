@@ -33,7 +33,7 @@ def push_date():
     schema_dict = json.loads(schema.definition)
 
     # Create a record
-    record = {'"DownloadDate": "2025-06-20"'}
+    record = {"DownloadDate": "2025-06-20"}
 
     # Serialize using fastavro
     buffer = io.BytesIO()
