@@ -10,6 +10,7 @@ ENV SMAP_SHORTNAME=SPL3SMP_E
 ENV SMAP_VERSION=006
 ENV PYTHONPATH=/opt/ingest
 ENV GCS_BUCKET_PATH=/bucket
+ENV NUMBER_OF_RETRIES=10
 
 ENV GCS_BUCKET_PATH=$GCS_BUCKET_PATH
 ENV SMAP_RAW_PATH=$SMAP_RAW_PATH
@@ -31,4 +32,4 @@ RUN pip install -r /opt/ingest/requirements.txt --break-system-packages
 
 EXPOSE 8080
 
-ENTRYPOINT exec python3 /opt/ingest/app.py
+ENTRYPOINT exec python3 /opt/ingest/ingest_all.py
