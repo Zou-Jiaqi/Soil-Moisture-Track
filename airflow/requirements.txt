@@ -5,3 +5,4 @@ h5py
 geoalchemy2
 gcsfs
 google-cloud-storage
+apache-airflow-providers-google
