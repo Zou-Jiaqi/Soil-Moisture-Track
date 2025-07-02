@@ -51,7 +51,7 @@ def preprocess(filedate):
                 df = pd.DataFrame({
                     "latitude": lat_df[mask].flatten(),
                     "longitude": lon_df[mask].flatten(),
-                    "date": filedate.strftime("%Y-%m-%d"),
+                    "date": filedate,
                     "reflectivity": ref_df[mask].flatten(),
                     "incident_angle": angle_df[mask].flatten(),
                     "brcs": list(brcs_df[mask])

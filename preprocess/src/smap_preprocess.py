@@ -54,7 +54,7 @@ def preprocess(filedate):
     df = pd.DataFrame({
         "row": np.repeat(np.arange(result.shape[0]), result.shape[1]),
         "column": np.tile(np.arange(result.shape[1]), result.shape[0]),
-        "date": filedate.strftime("%Y-%m-%d"),
+        "date": filedate,
         "soil_moisture": soil_moisture.flatten(),
     })
 
