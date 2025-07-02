@@ -19,7 +19,7 @@ def preprocess(filedate):
     files = file_utils.get_cygnss_files_raw(filedate)
     parquet_file_path = f'{parquet_path}/CYGNSS.parquet'
 
-    curr_date_path = Path(f'{parquet_file_path}/date={filedate.strftime("%Y-%m-%d")}')
+    curr_date_path = Path(f'{parquet_file_path}/date={filedate}')
 
     if curr_date_path.exists():
         logger.warning(f"CYGNSS Partition {curr_date_path.name} already exists.")

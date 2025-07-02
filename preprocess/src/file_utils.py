@@ -9,7 +9,7 @@ bucket_path = os.getenv("GCS_BUCKET_PATH")
 
 def get_smap_files_raw(date):
     raw_smap_path = os.getenv("SMAP_RAW_PATH")
-    download_path = f'{bucket_path}{raw_smap_path}/{date.strftime("%Y-%m-%d")}'
+    download_path = f'{bucket_path}{raw_smap_path}/{date}'
 
     data_path = Path(download_path)
 
@@ -19,12 +19,9 @@ def get_smap_files_raw(date):
 
 def get_cygnss_files_raw(date):
     raw_cygnss_path = os.getenv("CYGNSS_RAW_PATH")
-    download_path = f'{bucket_path}{raw_cygnss_path}/{date.strftime("%Y-%m-%d")}'
+    download_path = f'{bucket_path}{raw_cygnss_path}/{date}'
 
     data_path = Path(download_path)
-    pattern = 'cyg0[1-8].ddmi.s'
-    if date is not None:
-        pattern += date.strftime('%Y%m%d')
 
     files = [f.absolute() for f in data_path.iterdir() if f.is_file() and f.name.endswith('.nc')]
     return files
@@ -34,7 +31,7 @@ def get_smap_files_parquet(date):
     parquet_smap_path = os.getenv("SMAP_PARQUET_PATH")
     parquet_path = f'{bucket_path}{parquet_smap_path}'
 
-    data_path = Path(f'{parquet_path}/SMAP.parquet/date={date.strftime("%Y-%m-%d")}')
+    data_path = Path(f'{parquet_path}/SMAP.parquet/date={date}')
     files = [f.absolute() for f in data_path.iterdir() if f.is_file()]
     return files
 
@@ -43,6 +40,6 @@ def get_cygnss_files_parquet(date):
     parquet_cygnss_path = os.getenv("CYGNSS_PARQUET_PATH")
     parquet_path = f'{bucket_path}{parquet_cygnss_path}'
 
-    data_path = Path(f'{parquet_path}/CYGNSS.parquet/date={date.strftime("%Y-%m-%d")}')
+    data_path = Path(f'{parquet_path}/CYGNSS.parquet/date={date}')
     files = [f.absolute() for f in data_path.iterdir() if f.is_file()]
     return files
