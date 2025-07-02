@@ -1,10 +1,10 @@
-name: Build Docker Image for Ingest Component
+name: Build Docker Image for Preprocess Component
 run-name: ${{ github.actor }} is building docker images. 🚀
 on:
   push:
     branches: [ "main" ]
     paths:
-      - "ingest/**"
+      - "preprocess/**"
 jobs:
   build--and-test:
     runs-on: ubuntu-latest
@@ -21,9 +21,9 @@ jobs:
       - name: Configure Docker for Artifact Registry
         run: gcloud auth configure-docker us-west2-docker.pkg.dev --quiet
 
-      - working-directory: ./ingest
+      - working-directory: ./preprocess
         name: Build Docker image
         run: docker buildx build
           -f ./Dockerfile
-          -t us-west2-docker.pkg.dev/secure-bonbon-463900-u2/soil-moisture-track/smt_ingest:latest
+          -t us-west2-docker.pkg.dev/secure-bonbon-463900-u2/soil-moisture-track/smt_preprocess:latest
           --push  .
