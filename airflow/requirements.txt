@@ -1,8 +1,20 @@
+# Core dependencies
 python-dotenv>=0.21.0
-podaac-data-subscriber
-earthaccess
-h5py
-geoalchemy2
-gcsfs
-google-cloud-storage
-apache-airflow-providers-google
+
+# Data download libraries
+podaac-data-subscriber>=1.0.0
+earthaccess>=0.11.0
+
+# Scientific computing (pinned for compatibility with Airflow 2.9.1)
+# h5py and numpy versions must be compatible with Airflow's dependencies
+h5py>=3.8.0,<3.11.0
+numpy>=1.24.0,<2.0.0
+
+# Database
+geoalchemy2>=0.14.0
+
+# Google Cloud (compatible with Airflow 2.9.1)
+# Version 8.x or 9.x should work with Airflow 2.9.1
+gcsfs>=2023.10.0
+google-cloud-storage>=2.10.0,<3.0.0
+apache-airflow-providers-google>=8.0.0,<10.0.0
