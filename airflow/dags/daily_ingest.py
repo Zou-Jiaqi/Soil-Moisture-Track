@@ -4,26 +4,50 @@ from airflow.providers.google.cloud.operators.cloud_run import CloudRunExecuteJo
 from airflow.providers.google.cloud.operators.dataproc import DataprocSubmitJobOperator
 from datetime import datetime, timedelta
 import os
+import logging
 
+logger = logging.getLogger(__name__)
+
+# Validate required environment variables
 DownloadJobName = os.getenv("DOWNLOAD_JOB_NAME")
 ProjectId = os.getenv("PROJECT_ID")
 Region = os.getenv("REGION")
 
+if not DownloadJobName:
+    raise ValueError("DOWNLOAD_JOB_NAME environment variable is not set")
+if not ProjectId:
+    raise ValueError("PROJECT_ID environment variable is not set")
+if not Region:
+    raise ValueError("REGION environment variable is not set")
+
+logger.info(f"DAG configuration: JobName={DownloadJobName}, ProjectId={ProjectId}, Region={Region}")
+
 default_args = {
     "owner": "airflow",
-    "dag_id": "soil_moisture_track",
     "retries": 3,
     "retry_delay": timedelta(minutes=60),
     "start_date": datetime(2026, 1, 16),
 }
 
-
 # schedule interval: executed every 5 minutes
-with DAG("data_pipeline", default_args=default_args, schedule_interval=timedelta(minutes=5), catchup=True) as dag:
+# Using schedule parameter (Airflow 2.11.0+) instead of schedule_interval for better compatibility
+with DAG(
+    "data_pipeline",
+    default_args=default_args,
+    schedule=timedelta(minutes=5),  # Use 'schedule' instead of 'schedule_interval' in Airflow 2.11.0+
+    catchup=False,  # Changed to False to prevent backfilling issues
+    description="Download satellite data every 5 minutes",
+    tags=["satellite", "data-ingestion"],
+) as dag:
 
-    # Calculate target date (execution_date - 3 days) and return as string
+    # Calculate target date (logical_date - 3 days) and return as string
     def get_target_date(**context):
-        target_date = context["execution_date"] - timedelta(days=3)
+        # Use logical_date (Airflow 2.11.0+) with fallback to execution_date for compatibility
+        logical_date = context.get("logical_date") or context.get("execution_date")
+        if logical_date is None:
+            raise ValueError("Neither logical_date nor execution_date found in context")
+        target_date = logical_date - timedelta(days=3)
+        logger.info(f"Calculated target date: {target_date.strftime('%Y-%m-%d')}")
         return target_date.strftime("%Y-%m-%d")
 
     prepare_date_task = PythonOperator(
@@ -37,11 +61,16 @@ with DAG("data_pipeline", default_args=default_args, schedule_interval=timedelta
         region=Region,
         job_name=DownloadJobName,
         overrides={
-            "environment": {
-                "variables": {
-                    "DOWNLOAD_DATE": "{{ ti.xcom_pull(task_ids='prepare_target_date') }}",
+            "container_overrides": [
+                {
+                    "env": [
+                        {
+                            "name": "DOWNLOAD_DATE",
+                            "value": "{{ ti.xcom_pull(task_ids='prepare_target_date') }}",
+                        }
+                    ]
                 }
-            }
+            ]
         }
     )
 
