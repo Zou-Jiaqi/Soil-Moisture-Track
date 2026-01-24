@@ -13,7 +13,7 @@ jobs:
       PROJECT_ID: secure-bonbon-463900-u2
       REGION: us-west2
       IMAGE_NAME: us-west2-docker.pkg.dev/secure-bonbon-463900-u2/soil-moisture-track/smt_preprocess
-      JOB_NAME: smt-preprocess-job
+      JOB_NAME: satellite-data-preprocessor
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
