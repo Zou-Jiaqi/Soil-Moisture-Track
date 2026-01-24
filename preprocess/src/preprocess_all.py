@@ -15,6 +15,7 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
+
 def process_all():
     executor = ThreadPoolExecutor(2)
 

@@ -58,7 +58,7 @@ def ingest_all():
 if __name__ == '__main__':
     try:
         ingest_all()
-        sys.exit(0)  # Explicit success exit code
+        sys.exit(0) 
     except Exception as e:
         logger.error(f"Fatal error in ingest_all: {str(e)}")
-        sys.exit(1)  # Explicit failure exit code
+        sys.exit(1)  

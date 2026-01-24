@@ -30,7 +30,6 @@ default_args = {
 
 
 # schedule interval: executed at 00:00 every day
-# Using schedule parameter (Airflow 2.11.0+) instead of schedule_interval for better compatibility
 with DAG(
     "data_pipeline",
     default_args=default_args,

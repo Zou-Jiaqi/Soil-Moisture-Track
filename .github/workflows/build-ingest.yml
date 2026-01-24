@@ -1,17 +1,25 @@
-name: Build Docker Image for Ingest Component
-run-name: ${{ github.actor }} is building docker images. 🚀
+name: Build and Deploy Ingest Component
+run-name: ${{ github.actor }} is building and deploying ingest image. 🚀
 on:
   push:
     branches: [ "main" ]
     paths:
       - "ingest/**"
 jobs:
-  build--and-test:
+  build-and-deploy:
     runs-on: ubuntu-latest
     environment: Airflow
+    env:
+      PROJECT_ID: secure-bonbon-463900-u2
+      REGION: us-west2
+      IMAGE_NAME: us-west2-docker.pkg.dev/secure-bonbon-463900-u2/soil-moisture-track/smt_ingest
+      JOB_NAME: satellite-data-downloadr
     steps:
-      - name: Fetch Repository for Building Image
+      - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
@@ -21,9 +29,38 @@ jobs:
       - name: Configure Docker for Artifact Registry
         run: gcloud auth configure-docker us-west2-docker.pkg.dev --quiet
 
-      - working-directory: ./ingest
-        name: Build Docker image
-        run: docker buildx build
-          -f ./Dockerfile
-          -t us-west2-docker.pkg.dev/secure-bonbon-463900-u2/soil-moisture-track/smt_ingest:latest
-          --push  .
+      - name: Build and Push Docker Image
+        working-directory: ./ingest
+        run: |
+          docker buildx build \
+            -f ./Dockerfile \
+            -t ${IMAGE_NAME}:latest \
+            -t ${IMAGE_NAME}:${{ github.sha }} \
+            --platform linux/amd64 \
+            --push \
+            .
+
+      - name: Deploy to Cloud Run Job
+        run: |
+          # Check if job exists
+          if gcloud run jobs describe ${JOB_NAME} --region=${REGION} --project=${PROJECT_ID} &>/dev/null; then
+            echo "Updating existing Cloud Run Job..."
+            gcloud run jobs update ${JOB_NAME} \
+              --image=${IMAGE_NAME}:latest \
+              --region=${REGION} \
+              --project=${PROJECT_ID} \
+              --max-retries=3 \
+              --task-timeout=3600 \
+              --memory=2Gi \
+              --cpu=2
+          else
+            echo "Creating new Cloud Run Job..."
+            gcloud run jobs create ${JOB_NAME} \
+              --image=${IMAGE_NAME}:latest \
+              --region=${REGION} \
+              --project=${PROJECT_ID} \
+              --max-retries=3 \
+              --task-timeout=3600 \
+              --memory=2Gi \
+              --cpu=2
+          fi
