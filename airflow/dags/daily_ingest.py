@@ -28,16 +28,18 @@ default_args = {
     "start_date": datetime(2026, 1, 16),
 }
 
-# schedule interval: executed every 5 minutes
+
+# schedule interval: executed at 00:00 every day
 # Using schedule parameter (Airflow 2.11.0+) instead of schedule_interval for better compatibility
 with DAG(
     "data_pipeline",
     default_args=default_args,
-    schedule=timedelta(minutes=5),  # Use 'schedule' instead of 'schedule_interval' in Airflow 2.11.0+
-    catchup=False,  # Changed to False to prevent backfilling issues
-    description="Download satellite data every 5 minutes",
+    schedule="0 0 * * *",  # Cron expression: 00:00 UTC every day
+    catchup=True,  # Enable catchup to backfill from start_date to current date
+    description="Download satellite data daily at 00:00 UTC",
     tags=["satellite", "data-ingestion"],
 ) as dag:
+
 
     # Calculate target date (logical_date - 3 days) and return as string
     def get_target_date(**context):
