@@ -61,8 +61,7 @@ jobs:
               --cpu=2 \
               --min-instances=1 \
               --max-instances=1 \
-              --port=8080 \
-              --allow-unauthenticated
+              --port=8080 
           else
             echo "Creating new Cloud Run Service..."
             gcloud run services create ${SERVICE_NAME} \
@@ -73,6 +72,5 @@ jobs:
               --cpu=2 \
               --min-instances=1 \
               --max-instances=1 \
-              --port=8080 \
-              --allow-unauthenticated
+              --port=8080 
           fi

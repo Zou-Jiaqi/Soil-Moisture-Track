@@ -55,7 +55,6 @@ def ingest_all():
     logger.info("All data ingestion completed successfully")
 
 
-
 if __name__ == '__main__':
     try:
         ingest_all()
