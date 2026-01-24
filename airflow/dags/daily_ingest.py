@@ -3,7 +3,6 @@ from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.cloud_run import CloudRunExecuteJobOperator
 from airflow.providers.google.cloud.operators.dataproc import DataprocSubmitJobOperator
 from datetime import datetime, timedelta
-from scripts import smap_ingester, cygnss_ingester
 import os
 
 DownloadJobName = os.getenv("DOWNLOAD_JOB_NAME")
