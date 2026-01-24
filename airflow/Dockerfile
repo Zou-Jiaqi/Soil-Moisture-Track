@@ -26,9 +26,10 @@ COPY ./requirements.txt /opt/airflow/requirements.txt
 RUN pip install --upgrade -r /opt/airflow/requirements.txt
 
 # Copy and set up custom entrypoint script (before switching to airflow user)
-COPY ./entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh && \
-    chown airflow:root /entrypoint.sh
+# Use RUN to create the script with proper permissions to avoid Windows filesystem issues
+COPY ./entrypoint.sh /tmp/entrypoint.sh
+RUN chmod +x /tmp/entrypoint.sh && \
+    mv /tmp/entrypoint.sh /entrypoint.sh
 
 USER airflow
 
