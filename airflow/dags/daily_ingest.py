@@ -29,6 +29,7 @@ default_args = {
 }
 
 
+
 # schedule interval: executed at 00:00 every day
 with DAG(
     "data_pipeline",
