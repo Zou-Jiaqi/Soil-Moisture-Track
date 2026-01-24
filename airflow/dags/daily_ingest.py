@@ -3,12 +3,11 @@ from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators.cloud_run import CloudRunExecuteJobOperator
 from airflow.providers.google.cloud.operators.dataproc import DataprocSubmitJobOperator
 from datetime import datetime, timedelta
-import os
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 
-# Validate required environment variables
 DownloadJobName = os.getenv("DOWNLOAD_JOB_NAME")
 ProjectId = os.getenv("PROJECT_ID")
 Region = os.getenv("REGION")
@@ -60,6 +59,7 @@ with DAG(
         project_id=ProjectId,
         region=Region,
         job_name=DownloadJobName,
+        gcp_conn_id="google_cloud_default",  # Explicitly use the default GCP connection
         overrides={
             "container_overrides": [
                 {
