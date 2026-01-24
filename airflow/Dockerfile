@@ -25,3 +25,9 @@ COPY ./requirements.txt /opt/airflow/requirements.txt
 
 RUN pip install --upgrade -r /opt/airflow/requirements.txt
 
+# Set the user to airflow (required by the base image)
+USER airflow
+
+# Start Airflow standalone (runs both webserver and scheduler)
+# For production, you might want to run these separately or use a process manager
+CMD ["airflow", "standalone"]

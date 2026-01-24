@@ -30,7 +30,12 @@ def ingest(datestr, bounding_box=(-180, -90, 180, 90)):
         bounding_box=bounding_box,
         cloud_hosted=True
     )
-    files = earthaccess.download(granules, local_path=download_target)
+    try:
+        files = earthaccess.download(granules, local_path=download_target)
+    except Exception as e:
+        msg = f"Failed to fetch SMAP data list: {e}"
+        logger.error(msg)
+        raise e
 
     if len(granules) == len(files) and len(files) != 0:
         msg = f"SMAP data download success. Number of files: {len(files)}"
