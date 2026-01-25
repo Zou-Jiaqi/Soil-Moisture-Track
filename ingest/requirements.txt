@@ -1,2 +1,0 @@
-podaac-data-subscriber
-earthaccess

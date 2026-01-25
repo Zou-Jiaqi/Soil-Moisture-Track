@@ -36,6 +36,7 @@ def preprocess(filedate):
                 gain_df = f['gps_ant_gain_db_i'][()]
                 delay_df = f['brcs_ddm_peak_bin_delay_row'][()]
                 brcs_df = f['brcs'][()]
+                ddm_snr_df = f['ddm_snr'][()]
 
                 mask = (
                         (ref_df < 0.1) &
@@ -43,9 +44,8 @@ def preprocess(filedate):
                         (gain_df > 0) &
                         (angle_df < 60) &
                         (delay_df >= 5) &
-                        (delay_df <= 11) &
-                        (lat_df != -9999) &
-                        (lon_df != -9999)
+                        (delay_df <= 11) & 
+                        (ddm_snr_df > 0)
                 )
 
                 df = pd.DataFrame({

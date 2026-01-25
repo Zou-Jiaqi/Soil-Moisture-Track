@@ -17,4 +17,4 @@ USER ubuntu
 
 RUN pip install -r /opt/preprocess/requirements.txt --break-system-packages
 
-ENTRYPOINT exec python3 /opt/preprocess/preprocess_all.py
+ENTRYPOINT exec python3 /opt/preprocess/smap_preprocess_entrypoint.py

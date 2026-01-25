@@ -3,12 +3,9 @@ FROM ubuntu:latest
 LABEL authors="Jiaqi Zou"
 
 ENV CYGNSS_SHORTNAME_VERSION=CYGNSS_L1_V3.2
-ENV SMAP_SHORTNAME=SPL3SMP_E
-ENV SMAP_VERSION=006
 ENV PYTHONPATH=/opt/ingest
 ENV GCS_BUCKET_PATH=/bucket
 ENV NUMBER_OF_RETRIES=10
-
 
 ENV PATH="/home/ubuntu/.local/bin:${PATH}"
 
@@ -24,4 +21,4 @@ USER ubuntu
 
 RUN pip install -r /opt/ingest/requirements.txt --break-system-packages
 
-ENTRYPOINT exec python3 /opt/ingest/ingest_all.py
+ENTRYPOINT exec python3 /opt/ingest/cygnss_ingest_entrypoint.py
