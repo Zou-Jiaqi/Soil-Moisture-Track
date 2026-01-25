@@ -58,4 +58,3 @@ def ingest(datestr, bounding_box='"-180,-90,180,90"', force=False, quiet=False):
         msg = f"CYGNSS data download failed."
         logger.error(msg)
         raise Exception(msg)
-
