@@ -31,6 +31,8 @@ def preprocess(filedate):
 
     result = np.zeros((rows, columns), dtype=np.float32)
     counts = np.zeros((rows, columns), dtype=np.uint8)
+    vegetation = np.zeros((rows, columns), dtype=np.float32)
+    roughness = np.zeros((rows, columns), dtype=np.float32)
 
     for file in files:
         with h5py.File(file, mode='r') as f:
