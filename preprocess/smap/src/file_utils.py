@@ -17,29 +17,10 @@ def get_smap_files_raw(date):
     return files
 
 
-def get_cygnss_files_raw(date):
-    raw_cygnss_path = os.getenv("CYGNSS_RAW_PATH")
-    download_path = f'{bucket_path}{raw_cygnss_path}/{date}'
-
-    data_path = Path(download_path)
-
-    files = [f.absolute() for f in data_path.iterdir() if f.is_file() and f.name.endswith('.nc')]
-    return files
-
-
 def get_smap_files_parquet(date):
     parquet_smap_path = os.getenv("SMAP_PARQUET_PATH")
     parquet_path = f'{bucket_path}{parquet_smap_path}'
 
     data_path = Path(f'{parquet_path}/SMAP.parquet/date={date}')
-    files = [f.absolute() for f in data_path.iterdir() if f.is_file()]
-    return files
-
-
-def get_cygnss_files_parquet(date):
-    parquet_cygnss_path = os.getenv("CYGNSS_PARQUET_PATH")
-    parquet_path = f'{bucket_path}{parquet_cygnss_path}'
-
-    data_path = Path(f'{parquet_path}/CYGNSS.parquet/date={date}')
     files = [f.absolute() for f in data_path.iterdir() if f.is_file()]
     return files

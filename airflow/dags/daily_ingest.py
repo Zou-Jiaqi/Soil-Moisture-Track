@@ -8,8 +8,8 @@ import os
 
 logger = logging.getLogger(__name__)
 
-ProjectId = os.getenv("PROJECT_ID")
-Region = os.getenv("REGION")
+ProjectId = os.getenv("PROJECT_ID", "secure-bonbon-463900-u2")
+Region = os.getenv("REGION", "us-west2")
 
 # Job names for each component
 CYGNSS_INGEST_JOB = os.getenv("CYGNSS_INGEST_JOB_NAME", "cygnss-ingest-job")
