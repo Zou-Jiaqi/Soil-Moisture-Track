@@ -77,3 +77,4 @@ def preprocess(filedate):
                   compression="snappy",
                   partition_cols=["date"]
                   )
+                  

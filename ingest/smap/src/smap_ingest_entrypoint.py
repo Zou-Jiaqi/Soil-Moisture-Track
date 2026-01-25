@@ -27,3 +27,4 @@ if __name__ == '__main__':
     except Exception as e:
         logger.error(f"Fatal error in SMAP ingestion: {str(e)}")
         sys.exit(1)
+

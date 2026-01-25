@@ -46,6 +46,8 @@ jobs:
             echo "Updating existing Cloud Run Job..."
             gcloud run jobs update ${JOB_NAME} \
               --image=${IMAGE_NAME}:latest \
+              --region=${REGION} \
+              --project=${PROJECT_ID}
           else
             echo "Creating new Cloud Run Job..."
             gcloud run jobs create ${JOB_NAME} \
@@ -54,6 +56,6 @@ jobs:
               --project=${PROJECT_ID} \
               --max-retries=3 \
               --task-timeout=3600 \
-              --memory=8Gi \
+              --memory=2Gi \
               --cpu=2
           fi
