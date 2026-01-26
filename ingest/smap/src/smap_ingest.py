@@ -33,7 +33,7 @@ def ingest(datestr, bounding_box=(-180, -90, 180, 90)):
     try:
         files = earthaccess.download(granules, local_path=download_target)
     except Exception as e:
-        msg = f"Failed to fetch SMAP data list: {e}"
+        msg = f"Failed to fetch SMAP data list. {e}"
         logger.error(msg)
         raise e
 

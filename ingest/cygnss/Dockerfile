@@ -5,7 +5,6 @@ LABEL authors="Jiaqi Zou"
 ENV CYGNSS_SHORTNAME_VERSION=CYGNSS_L1_V3.2
 ENV PYTHONPATH=/opt/ingest
 ENV GCS_BUCKET_PATH=/bucket
-ENV NUMBER_OF_RETRIES=10
 
 ENV PATH="/home/ubuntu/.local/bin:${PATH}"
 

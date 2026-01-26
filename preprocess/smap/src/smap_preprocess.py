@@ -72,7 +72,7 @@ def preprocess(filedate):
         "roughness_coefficient": roughness_coefficient.flatten(),
     })
 
-    df = df.dropna(subset=["soil_moisture"])
+    df = df.dropna(subset=["soil_moisture", "vegetation_opacity", "roughness_coefficient"])
     df.to_parquet(parquet_file_path,
                   index=False,
                   engine="pyarrow",

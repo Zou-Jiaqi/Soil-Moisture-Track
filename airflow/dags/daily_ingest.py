@@ -16,6 +16,7 @@ CYGNSS_INGEST_JOB = os.getenv("CYGNSS_INGEST_JOB_NAME", "cygnss-ingest-job")
 SMAP_INGEST_JOB = os.getenv("SMAP_INGEST_JOB_NAME", "smap-ingest-job")
 CYGNSS_PREPROCESS_JOB = os.getenv("CYGNSS_PREPROCESS_JOB_NAME", "cygnss-preprocess-job")
 SMAP_PREPROCESS_JOB = os.getenv("SMAP_PREPROCESS_JOB_NAME", "smap-preprocess-job")
+INTEGRATION_JOB = os.getenv("INTEGRATION_JOB_NAME", "integration-job")
 
 if not ProjectId:
     raise ValueError("PROJECT_ID environment variable is not set")
@@ -25,6 +26,7 @@ if not Region:
 logger.info(f"DAG configuration: ProjectId={ProjectId}, Region={Region}")
 logger.info(f"Jobs: CYGNSS_INGEST={CYGNSS_INGEST_JOB}, SMAP_INGEST={SMAP_INGEST_JOB}")
 logger.info(f"Jobs: CYGNSS_PREPROCESS={CYGNSS_PREPROCESS_JOB}, SMAP_PREPROCESS={SMAP_PREPROCESS_JOB}")
+logger.info(f"Jobs: INTEGRATION={INTEGRATION_JOB}")
 
 default_args = {
     "owner": "airflow",
@@ -142,6 +144,27 @@ with DAG(
         }
     )
 
+    # Integration task - runs after both preprocess tasks complete
+    integration_task = CloudRunExecuteJobOperator(
+        task_id="integration",
+        project_id=ProjectId,
+        region=Region,
+        job_name=INTEGRATION_JOB,
+        gcp_conn_id="google_cloud_default",
+        overrides={
+            "container_overrides": [
+                {
+                    "env": [
+                        {
+                            "name": "PROCESS_DATE",
+                            "value": "{{ ti.xcom_pull(task_ids='prepare_target_date') }}",
+                        }
+                    ]
+                }
+            ]
+        }
+    )
+
     # Task dependencies
     # Ingest tasks run in parallel after date preparation
     prepare_date_task >> [cygnss_ingest_task, smap_ingest_task]
@@ -149,6 +172,9 @@ with DAG(
     # Preprocess tasks run after their respective ingest tasks complete
     cygnss_ingest_task >> cygnss_preprocess_task
     smap_ingest_task >> smap_preprocess_task
+    
+    # Integration task runs after both preprocess tasks complete
+    [cygnss_preprocess_task, smap_preprocess_task] >> integration_task
 
     # PYSPARK_JOB = {
     #     "reference": {"project_id": "your-project-id"},

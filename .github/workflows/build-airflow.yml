@@ -10,14 +10,17 @@ jobs:
     runs-on: ubuntu-latest
     environment: Airflow
     env:
-      GSC_BUCKET_NAME: "${{vars.GSC_BUCKET_NAME}}"
-      UPLOAD_PATH_SMAP_RAW: "${{vars.GSC_BUCKET_NAME}}${{vars.BUCKET_PATH_RAW_SMAP}}"
-      UPLOAD_PATH_CYGNSS_RAW: "${{vars.GSC_BUCKET_NAME}}${{vars.BUCKET_PATH_RAW_CYGNSS}}"
-      UPLOAD_PATH_PARQUET: "${{vars.GSC_BUCKET_NAME}}${{vars.BUCKET_PATH_PARQUET}}"
-      IMAGE_NAME: us-west2-docker.pkg.dev/secure-bonbon-463900-u2/soil-moisture-track/smt_airflow
-      PROJECT_ID: secure-bonbon-463900-u2
-      REGION: us-west2
-      SERVICE_NAME: smt-airflow
+      PROJECT_ID: "${{ vars.GCP_PROJECT_ID }}"
+      REGION: "${{ vars.GCP_REGION }}" 
+      CYGNSS_INGEST_JOB_NAME: "${{ vars.CYGNSS_INGEST_JOB_NAME }}"
+      SMAP_INGEST_JOB_NAME: "${{ vars.SMAP_INGEST_JOB_NAME }}"
+      CYGNSS_PREPROCESS_JOB_NAME: "${{ vars.CYGNSS_PREPROCESS_JOB_NAME }}"
+      SMAP_PREPROCESS_JOB_NAME: "${{ vars.SMAP_PREPROCESS_JOB_NAME }}"
+      INTEGRATION_JOB_NAME: "${{ vars.INTEGRATION_JOB_NAME }}"
+      SMT_REGISTRY_NAME: "${{ vars.SMT_REGISTRY_NAME }}"
+      AIRFLOW_SERVICE_NAME: "${{ vars.AIRFLOW_SERVICE_NAME }}"
+      ARTIFACT_DOMAIN: "${{REGION}}-docker.pkg.dev"
+      IMAGE_NAME: "${{ARTIFACT_DOMAIN}}/${{PROJECT_ID}}/${{SMT_REGISTRY_NAME}}/${{AIRFLOW_SERVICE_NAME}}"
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -31,16 +34,19 @@ jobs:
           credentials_json: '${{ secrets.GCP_SA_KEY }}'
 
       - name: Configure Docker for Artifact Registry
-        run: gcloud auth configure-docker us-west2-docker.pkg.dev --quiet
+        run: gcloud auth configure-docker ${ARTIFACT_DOMAIN} --quiet
 
       - name: Build and Push Docker Image
         working-directory: ./airflow
         run: |
           docker buildx build \
-            --build-arg GSC_BUCKET_NAME=${GSC_BUCKET_NAME} \
-            --build-arg UPLOAD_PATH_SMAP_RAW=${UPLOAD_PATH_SMAP_RAW} \
-            --build-arg UPLOAD_PATH_CYGNSS_RAW=${UPLOAD_PATH_CYGNSS_RAW} \
-            --build-arg UPLOAD_PATH_PARQUET=${UPLOAD_PATH_PARQUET} \
+            --build-arg PROJECT_ID=${PROJECT_ID} \
+            --build-arg REGION=${REGION} \
+            --build-arg CYGNSS_INGEST_JOB_NAME=${CYGNSS_INGEST_JOB_NAME} \
+            --build-arg SMAP_INGEST_JOB_NAME=${SMAP_INGEST_JOB_NAME} \
+            --build-arg CYGNSS_PREPROCESS_JOB_NAME=${CYGNSS_PREPROCESS_JOB_NAME} \
+            --build-arg SMAP_PREPROCESS_JOB_NAME=${SMAP_PREPROCESS_JOB_NAME} \
+            --build-arg INTEGRATION_JOB_NAME=${INTEGRATION_JOB_NAME} \
             -f ./Dockerfile \
             -t ${IMAGE_NAME}:latest \
             -t ${IMAGE_NAME}:${{ github.sha }} \
@@ -51,9 +57,9 @@ jobs:
       - name: Deploy to Cloud Run Service
         run: |
           # Check if service exists
-          if gcloud run services describe ${SERVICE_NAME} --region=${REGION} --project=${PROJECT_ID} &>/dev/null; then
+          if gcloud run services describe ${AIRFLOW_SERVICE_NAME} --region=${REGION} --project=${PROJECT_ID} &>/dev/null; then
             echo "Updating existing Cloud Run Service..."
-            gcloud run services update ${SERVICE_NAME} \
+            gcloud run services update ${AIRFLOW_SERVICE_NAME} \
               --image=${IMAGE_NAME}:latest \
               --region=${REGION} \
               --project=${PROJECT_ID} \
@@ -64,7 +70,7 @@ jobs:
               --port=8080 
           else
             echo "Creating new Cloud Run Service..."
-            gcloud run services create ${SERVICE_NAME} \
+            gcloud run services create ${AIRFLOW_SERVICE_NAME} \
               --image=${IMAGE_NAME}:latest \
               --region=${REGION} \
               --project=${PROJECT_ID} \

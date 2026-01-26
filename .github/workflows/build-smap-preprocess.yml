@@ -10,10 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     environment: Airflow
     env:
-      PROJECT_ID: secure-bonbon-463900-u2
-      REGION: us-west2
-      IMAGE_NAME: us-west2-docker.pkg.dev/secure-bonbon-463900-u2/soil-moisture-track/smap_preprocess
-      JOB_NAME: smap-preprocess-job
+      PROJECT_ID: "${{ vars.GCP_PROJECT_ID }}"
+      REGION: "${{ vars.GCP_REGION }}"
+      REGISTRY_NAME: "${{ vars.SMT_REGISTRY_NAME }}"
+      JOB_NAME: "${{ vars.SMAP_PREPROCESS_JOB_NAME }}"
+      REGISTRY_DOMAIN: "${{REGION}}-docker.pkg.dev"
+      IMAGE_NAME: "${{REGISTRY_DOMAIN}}/${{PROJECT_ID}}/${{REGISTRY_NAME}}/${{JOB_NAME}}"
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -27,7 +29,7 @@ jobs:
           credentials_json: '${{ secrets.GCP_SA_KEY }}'
 
       - name: Configure Docker for Artifact Registry
-        run: gcloud auth configure-docker us-west2-docker.pkg.dev --quiet
+        run: gcloud auth configure-docker ${REGISTRY_DOMAIN} --quiet
 
       - name: Build and Push Docker Image
         working-directory: ./preprocess/smap

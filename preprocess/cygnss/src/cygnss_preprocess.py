@@ -54,7 +54,8 @@ def preprocess(filedate):
                     "date": filedate,
                     "reflectivity": ref_df[mask].flatten(),
                     "incident_angle": angle_df[mask].flatten(),
-                    "brcs": list(brcs_df[mask])
+                    "brcs": list(brcs_df[mask]),
+                    "snr": ddm_snr_df[mask].flatten()
                 })
 
                 df["trailing_edge_slope"] = df["brcs"].apply(compute_tes_from_ddm)
