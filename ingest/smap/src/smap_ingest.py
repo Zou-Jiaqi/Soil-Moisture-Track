@@ -48,3 +48,4 @@ def ingest(datestr, bounding_box=(-180, -90, 180, 90)):
         msg = f"SMAP data download failed. Number of failed files: {len(granules) - len(files)}"
         logger.error(msg)
         raise Exception(msg)
+    

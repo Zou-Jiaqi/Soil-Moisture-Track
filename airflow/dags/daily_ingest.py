@@ -174,7 +174,7 @@ with DAG(
     smap_ingest_task >> smap_preprocess_task
     
     # Integration task runs after both preprocess tasks complete
-    [cygnss_preprocess_task, smap_preprocess_task] >> integration_task
+    # [cygnss_preprocess_task, smap_preprocess_task] >> integration_task
 
     # PYSPARK_JOB = {
     #     "reference": {"project_id": "your-project-id"},
