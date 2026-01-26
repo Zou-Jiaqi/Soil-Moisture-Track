@@ -10,7 +10,6 @@ download_path = os.getenv("DOWNLOAD_PATH").rstrip("/")
 parquet_path = os.getenv("PARQUET_PATH").rstrip("/")
 
 
-
 def get_smap_files_raw(date=None):
     data_path = Path(download_path)
     pattern = 'SMAP_L3_SM_P_E_'
