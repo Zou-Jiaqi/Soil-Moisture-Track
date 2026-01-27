@@ -16,15 +16,22 @@ parquet_path = f'{bucket_path}{parquet_cygnss_path}'
 
 
 def preprocess(filedate):
-    files = file_utils.get_cygnss_files_raw(filedate)
-    parquet_file_path = f'{parquet_path}/CYGNSS.parquet'
 
+
+    parquet_file_path = f'{parquet_path}/CYGNSS.parquet'
     curr_date_path = Path(f'{parquet_file_path}/date={filedate}')
 
     if curr_date_path.exists():
         logger.warning(f"CYGNSS Partition {curr_date_path.name} already exists.")
         return
 
+    files = list(curr_date_path.glob("*.nc"))
+
+    if not files:
+        msg = f"No CYGNSS files found for date {filedate}. Preprocessing failed."
+        logger.error(msg)
+        raise ValueError(msg)
+    
     for file in files:
         # Read CYGNSS records
         try:
@@ -50,7 +57,7 @@ def preprocess(filedate):
 
                 df = pd.DataFrame({
                     "latitude": lat_df[mask].flatten(),
-                    "longitude": lon_df[mask].flatten(),
+                    "longitude": lon_df[mask].flatten() - 180,
                     "date": filedate,
                     "reflectivity": ref_df[mask].flatten(),
                     "incident_angle": angle_df[mask].flatten(),
@@ -75,7 +82,6 @@ def preprocess(filedate):
                 os.remove(curr_date_path)
             raise e
 
-    logger.info(f"Finished ingesting CYGNSS files.")
 
 
 

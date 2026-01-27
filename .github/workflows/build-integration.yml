@@ -1,10 +1,10 @@
-name: Build and Deploy CYGNSS Ingest
-run-name: ${{ github.actor }} is building and deploying CYGNSS ingest. 🚀
+name: Build and Deploy Integration
+run-name: ${{ github.actor }} is building and deploying integration. 🚀
 on:
   push:
     branches: [ "main" ]
     paths:
-      - "ingest/cygnss/**"
+      - "integration/**"
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -13,8 +13,8 @@ jobs:
       PROJECT_ID: "${{ vars.GCP_PROJECT_ID }}"
       REGION: "${{ vars.GCP_REGION }}"
       REGISTRY_NAME: "${{ vars.SMT_REGISTRY_NAME }}"
-      JOB_NAME: "${{ vars.CYGNSS_INGEST_JOB_NAME }}"
-      IMAGE_NAME: "${{ vars.SMT_REGISTRY_DOMAIN }}/${{ vars.GCP_PROJECT_ID }}/${{ vars.SMT_REGISTRY_NAME }}/${{ vars.CYGNSS_INGEST_JOB_NAME }}"
+      JOB_NAME: "${{ vars.INTEGRATION_JOB_NAME }}"
+      IMAGE_NAME: "${{ vars.SMT_REGISTRY_DOMAIN }}/${{ vars.GCP_PROJECT_ID }}/${{ vars.SMT_REGISTRY_NAME }}/${{ vars.INTEGRATION_JOB_NAME }}"
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -31,7 +31,7 @@ jobs:
         run: gcloud auth configure-docker ${{ vars.SMT_REGISTRY_DOMAIN }} --quiet
 
       - name: Build and Push Docker Image
-        working-directory: ./ingest/cygnss
+        working-directory: ./integration
         run: |
           docker buildx build \
             -f ./Dockerfile \
@@ -49,6 +49,7 @@ jobs:
               --image=${IMAGE_NAME}:latest \
               --region=${REGION} \
               --project=${PROJECT_ID}
+              
           else
             echo "Creating new Cloud Run Job..."
             gcloud run jobs create ${JOB_NAME} \

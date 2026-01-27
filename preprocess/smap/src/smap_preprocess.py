@@ -3,7 +3,6 @@ import logging
 import h5py
 import pandas as pd
 import numpy as np
-import file_utils
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
@@ -21,13 +20,20 @@ VALID_FLAGS = [0, 8]
 
 
 def preprocess(filedate):
-    files = file_utils.get_smap_files_raw(filedate)
-    parquet_file_path = f'{parquet_path}/SMAP.parquet'
 
+    parquet_file_path = f'{parquet_path}/SMAP.parquet'
     curr_date_path = Path(f'{parquet_file_path}/date={filedate}')
+
     if curr_date_path.exists():
         logger.warning(f"SMAP Partition {curr_date_path.name} already exists.")
         return
+
+    files = list(curr_date_path.glob("*.h5"))
+    
+    if not files:
+        msg = f"No SMAP files found for date {filedate}. Preprocessing failed."
+        logger.error(msg)
+        raise ValueError(msg)
 
     result = np.zeros((rows, columns), dtype=np.float32)
     counts = np.zeros((rows, columns), dtype=np.uint8)

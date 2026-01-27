@@ -28,7 +28,7 @@ jobs:
           credentials_json: '${{ secrets.GCP_SA_KEY }}'
 
       - name: Configure Docker for Artifact Registry
-        run: gcloud auth configure-docker ${ vars.SMT_REGISTRY_DOMAIN } --quiet
+        run: gcloud auth configure-docker ${{ vars.SMT_REGISTRY_DOMAIN }} --quiet
 
       - name: Build and Push Docker Image
         working-directory: ./preprocess/smap

@@ -21,17 +21,8 @@ if __name__ == '__main__':
             logger.error(msg)
             raise ValueError(msg)
         
-        # Ensure date is in YYYY-MM-DD format (string)
-        if isinstance(process_date, str):
-            # Validate format
-            datetime.strptime(process_date, "%Y-%m-%d")
-            date_str = process_date
-        else:
-            # If it's a datetime object, convert to string
-            date_str = process_date.strftime("%Y-%m-%d")
-        
-        logger.info(f"Starting CYGNSS preprocessing for date: {date_str}")
-        cygnss_preprocess.preprocess(date_str)
+        logger.info(f"Starting CYGNSS preprocessing for date: {process_date}")
+        cygnss_preprocess.preprocess(process_date)
         logger.info("CYGNSS preprocessing completed successfully")
         sys.exit(0)
     except Exception as e:

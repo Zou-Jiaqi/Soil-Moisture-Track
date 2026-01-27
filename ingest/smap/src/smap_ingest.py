@@ -30,6 +30,13 @@ def ingest(datestr, bounding_box=(-180, -90, 180, 90)):
         bounding_box=bounding_box,
         cloud_hosted=True
     )
+
+
+    if not granules:
+        msg = f"No SMAP granules found for date {datestr}. Ingestion failed."
+        logger.error(msg)
+        raise ValueError(msg)
+    
     try:
         files = earthaccess.download(granules, local_path=download_target)
     except Exception as e:
