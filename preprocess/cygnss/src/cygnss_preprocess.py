@@ -61,8 +61,8 @@ def preprocess(filedate):
                     "date": filedate,
                     "reflectivity": ref_df[mask].flatten(),
                     "incident_angle": angle_df[mask].flatten(),
+                    "snr": ddm_snr_df[mask].flatten(),
                     "brcs": list(brcs_df[mask]),
-                    "snr": ddm_snr_df[mask].flatten()
                 })
 
                 df["trailing_edge_slope"] = df["brcs"].apply(compute_tes_from_ddm)
@@ -78,8 +78,8 @@ def preprocess(filedate):
         except Exception as e:
             logger.exception(f"Failed to ingest file: {file}")
             logger.exception(e)
-            if curr_date_path.exists():
-                os.remove(curr_date_path)
+            if curr_date_parquet_path.exists():
+                os.remove(curr_date_parquet_path)
             raise e
 
 
