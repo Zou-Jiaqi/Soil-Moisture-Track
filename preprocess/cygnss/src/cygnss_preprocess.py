@@ -11,21 +11,21 @@ logger = logging.getLogger(__name__)
 
 bucket_path = os.getenv("GCS_BUCKET_PATH")
 parquet_cygnss_path = os.getenv("CYGNSS_PARQUET_PATH")
-
-parquet_path = f'{bucket_path}{parquet_cygnss_path}'
-
+raw_cygnss_path = os.getenv("CYGNSS_RAW_PATH")
+raw_path = f'{bucket_path}{raw_cygnss_path}'
 
 def preprocess(filedate):
 
+    parquet_file_path = f'{bucket_path}{parquet_cygnss_path}/CYGNSS.parquet'
 
-    parquet_file_path = f'{parquet_path}/CYGNSS.parquet'
-    curr_date_path = Path(f'{parquet_file_path}/date={filedate}')
+    curr_date_parquet_path = Path(f'{parquet_file_path}/date={filedate}')
+    curr_date_raw_path = Path(f'{bucket_path}{raw_cygnss_path}/{filedate}')
 
-    if curr_date_path.exists():
-        logger.warning(f"CYGNSS Partition {curr_date_path.name} already exists.")
+    if curr_date_parquet_path.exists():
+        logger.warning(f"CYGNSS Partition {curr_date_parquet_path.name} already exists.")
         return
 
-    files = list(curr_date_path.glob("*.nc"))
+    files = list(curr_date_raw_path.glob("*.nc"))
 
     if not files:
         msg = f"No CYGNSS files found for date {filedate}. Preprocessing failed."

@@ -9,8 +9,8 @@ logger = logging.getLogger(__name__)
 
 bucket_path = os.getenv("GCS_BUCKET_PATH")
 parquet_smap_path = os.getenv("SMAP_PARQUET_PATH")
-
-parquet_path = f'{bucket_path}{parquet_smap_path}'
+raw_smap_path = os.getenv("SMAP_RAW_PATH")
+raw_path = f'{bucket_path}{raw_smap_path}'
 
 # 9km EASE GRID parameters
 rows = 1624
@@ -21,14 +21,16 @@ VALID_FLAGS = [0, 8]
 
 def preprocess(filedate):
 
-    parquet_file_path = f'{parquet_path}/SMAP.parquet'
-    curr_date_path = Path(f'{parquet_file_path}/date={filedate}')
+    parquet_file_path = f'{bucket_path}{parquet_smap_path}/SMAP.parquet'
 
-    if curr_date_path.exists():
-        logger.warning(f"SMAP Partition {curr_date_path.name} already exists.")
+    curr_date_parquet_path = Path(f'{parquet_file_path}/date={filedate}')
+    curr_date_raw_path = Path(f'{bucket_path}{raw_smap_path}/{filedate}')
+
+    if curr_date_parquet_path.exists():
+        logger.warning(f"SMAP Partition {curr_date_parquet_path.name} already exists.")
         return
 
-    files = list(curr_date_path.glob("*.h5"))
+    files = list(curr_date_raw_path.glob("*.h5"))
     
     if not files:
         msg = f"No SMAP files found for date {filedate}. Preprocessing failed."
