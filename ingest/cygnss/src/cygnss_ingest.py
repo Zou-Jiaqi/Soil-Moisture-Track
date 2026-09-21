@@ -54,6 +54,9 @@ def ingest(datestr, bounding_box='"-180,-90,180,90"', force=False, quiet=False):
     if result.returncode == 0:
         msg = f"CYGNSS data download succeeded."
         logger.info(msg)
+        flag = Path(download_target + "_SUCCESS")
+        if not flag.exists():
+            path.touch()
     else:
         msg = f"CYGNSS data download failed."
         logger.error(msg)

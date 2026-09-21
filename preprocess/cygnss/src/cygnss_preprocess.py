@@ -82,6 +82,9 @@ def preprocess(filedate):
                 os.remove(curr_date_parquet_path)
             raise e
 
+        flag = Path(curr_date_parquet_path + "/_SUCCESS")
+        if not flag.exists():
+            path.touch()
 
 
 

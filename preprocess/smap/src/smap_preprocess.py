@@ -87,4 +87,7 @@ def preprocess(filedate):
                   compression="snappy",
                   partition_cols=["date"]
                   )
-                  
+
+    flag = Path(curr_date_parquet_path + "/_SUCCESS")
+    if not flag.exists():
+        path.touch()

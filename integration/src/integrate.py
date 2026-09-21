@@ -134,4 +134,8 @@ def integrate(filedate):
         partition_cols=["date"]
     )
     
-    logger.info(f"Integration completed. Saved {len(merged_df)} records to {integrated_parquet_path} (partitioned by date)")
+    logger.info(f"Integration completed. Saved {len(merged_df)} records to {integrated_parquet_path}")
+
+    flag = Path(output_partition + "/_SUCCESS")
+    if not flag.exists():
+        path.touch()

@@ -1,6 +1,7 @@
 import os
 import earthaccess
 import logging
+from pathlib import Path
 
 auth = earthaccess.login()
 logger = logging.getLogger(__name__)
@@ -47,6 +48,9 @@ def ingest(datestr, bounding_box=(-180, -90, 180, 90)):
     if len(granules) == len(files) and len(files) != 0:
         msg = f"SMAP data download success. Number of files: {len(files)}"
         logger.info(msg)
+        flag = Path(download_target + "_SUCCESS")
+        if not flag.exists():
+            path.touch()
     elif len(granules) == 0:
         msg = f"No smap data found."
         logger.error(msg)
