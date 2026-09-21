@@ -28,7 +28,7 @@ def preprocess(filedate):
 
     if curr_date_parquet_path.exists():
         logger.warning(f"SMAP Partition {curr_date_parquet_path.name} already exists.")
-        return
+        shutil.rmtree(curr_date_parquet_path)
 
     files = list(curr_date_raw_path.glob("*.h5"))
     
@@ -88,6 +88,6 @@ def preprocess(filedate):
                   partition_cols=["date"]
                   )
 
-    flag = Path(curr_date_parquet_path + "/_SUCCESS")
+    flag = curr_date_parquet_path / "_SUCCESS"
     if not flag.exists():
         flag.touch()

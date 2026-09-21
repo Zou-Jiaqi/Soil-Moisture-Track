@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import file_utils
+import shutil
 import pandas as pd
 import numpy as np
 import logging
@@ -23,7 +24,7 @@ def preprocess(filedate):
 
     if curr_date_parquet_path.exists():
         logger.warning(f"CYGNSS Partition {curr_date_parquet_path.name} already exists.")
-        return
+        shutil.rmtree(curr_date_parquet_path)
 
     files = list(curr_date_raw_path.glob("*.nc"))
 
@@ -79,12 +80,12 @@ def preprocess(filedate):
             logger.exception(f"Failed to ingest file: {file}")
             logger.exception(e)
             if curr_date_parquet_path.exists():
-                os.remove(curr_date_parquet_path)
+                shutil.rmtree(curr_date_parquet_path)
             raise e
 
-        flag = Path(curr_date_parquet_path + "/_SUCCESS")
-        if not flag.exists():
-            flag.touch()
+    flag = curr_date_parquet_path / "_SUCCESS"
+    if not flag.exists():
+        flag.touch()
 
 
 

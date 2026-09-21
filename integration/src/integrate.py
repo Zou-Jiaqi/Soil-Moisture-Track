@@ -44,9 +44,9 @@ def integrate(filedate):
     
     # Check if output partition already exists
     output_partition = Path(f'{integrated_parquet_path}/date={filedate}')
-    if output_partition.exists() and any(output_partition.glob("*.parquet")):
-        logger.warning(f"Integrated partition {output_partition.name} already exists. Skipping.")
-        return
+    if output_partition.exists():
+        logger.warning(f"Integrated partition {output_partition.name} already exists.")
+        shutil.rmtree(output_partition)
     
     # Load CYGNSS data
     cygnss_path = Path(f'{cygnss_parquet_path}/date={filedate}')
