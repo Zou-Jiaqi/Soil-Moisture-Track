@@ -90,4 +90,4 @@ def preprocess(filedate):
 
     flag = Path(curr_date_parquet_path + "/_SUCCESS")
     if not flag.exists():
-        path.touch()
+        flag.touch()

@@ -50,7 +50,7 @@ def ingest(datestr, bounding_box=(-180, -90, 180, 90)):
         logger.info(msg)
         flag = Path(download_target + "_SUCCESS")
         if not flag.exists():
-            path.touch()
+            flag.touch()
     elif len(granules) == 0:
         msg = f"No smap data found."
         logger.error(msg)

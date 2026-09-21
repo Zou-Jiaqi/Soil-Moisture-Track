@@ -138,4 +138,4 @@ def integrate(filedate):
 
     flag = Path(output_partition + "/_SUCCESS")
     if not flag.exists():
-        path.touch()
+        flag.touch()
