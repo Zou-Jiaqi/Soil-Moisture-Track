@@ -7,6 +7,7 @@ and merges with SMAP data if the grid cell exists.
 
 import os
 import logging
+import shutil
 import pandas as pd
 import numpy as np
 from pathlib import Path
