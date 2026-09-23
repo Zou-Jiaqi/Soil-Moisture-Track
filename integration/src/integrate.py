@@ -36,7 +36,7 @@ def integrate(filedate):
     Output columns:
     - latitude, longitude (from CYGNSS)
     - reflectivity, incident_angle, snr, trailing_edge_slope (from CYGNSS)
-    - vegetation_opacity, roughness_coefficient (from SMAP)
+    - soil_moisture (from SMAP)
     
     Args:
         filedate: Date string in YYYY-MM-DD format
@@ -93,7 +93,7 @@ def integrate(filedate):
     logger.info("Merging CYGNSS and SMAP data")
     
     # Select only the columns we need from SMAP
-    smap_merge = smap_df[['row', 'column', 'vegetation_opacity', 'roughness_coefficient']].copy()
+    smap_merge = smap_df[['row', 'column', 'soil_moisture']].copy()
     
     # Perform inner join on row and column to get matching grid cells
     merged_df = cygnss_df.merge(
@@ -116,8 +116,7 @@ def integrate(filedate):
         'incident_angle',
         'snr',
         'trailing_edge_slope',
-        'vegetation_opacity',
-        'roughness_coefficient',
+        'soil_moisture',
         'date'
     ]
     

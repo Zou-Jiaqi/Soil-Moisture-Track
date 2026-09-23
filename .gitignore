@@ -1,0 +1,3 @@
+local_bucket/
+__pycache__/
+*.pyc
